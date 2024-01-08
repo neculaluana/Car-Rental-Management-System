@@ -36,47 +36,47 @@ public class DbUtils {
                 return null;
             }
 
-            List<Car> carList=getAllCars();
-            for (Car car:carList)
-            {
-                System.out.println(car);
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------");
-            List<Client> clientList=getAllClients();
-            for (Client client:clientList)
-            {
-                System.out.println(client);
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------");
-            List<Employee> employeeList=getAllEmployees();
-            for (Employee employee:employeeList)
-            {
-                System.out.println(employee);
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------");
-            List<Rental> rentalList=getAllRentals();
-            for (Rental rental:rentalList)
-            {
-                System.out.println(rental);
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------");
-            List<Payment> paymentList=getAllPayments();
-            for (Payment payment:paymentList)
-            {
-                System.out.println(payment);
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------");
-            List<Invoice> invoiceList=getAllInvoices();
-            for (Invoice invoice:invoiceList)
-            {
-                System.out.println(invoice);
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------");
-            List<User> userList=getAllUsers();
-            for (User user:userList)
-            {
-                System.out.println(user);
-            }
+//            List<Car> carList=getAllCars();
+//            for (Car car:carList)
+//            {
+//                System.out.println(car);
+//            }
+//            System.out.println("-------------------------------------------------------------------------------------------------");
+//            List<Client> clientList=getAllClients();
+//            for (Client client:clientList)
+//            {
+//                System.out.println(client);
+//            }
+//            System.out.println("-------------------------------------------------------------------------------------------------");
+//            List<Employee> employeeList=getAllEmployees();
+//            for (Employee employee:employeeList)
+//            {
+//                System.out.println(employee);
+//            }
+//            System.out.println("-------------------------------------------------------------------------------------------------");
+//            List<Rental> rentalList=getAllRentals();
+//            for (Rental rental:rentalList)
+//            {
+//                System.out.println(rental);
+//            }
+//            System.out.println("-------------------------------------------------------------------------------------------------");
+//            List<Payment> paymentList=getAllPayments();
+//            for (Payment payment:paymentList)
+//            {
+//                System.out.println(payment);
+//            }
+//            System.out.println("-------------------------------------------------------------------------------------------------");
+//            List<Invoice> invoiceList=getAllInvoices();
+//            for (Invoice invoice:invoiceList)
+//            {
+//                System.out.println(invoice);
+//            }
+//            System.out.println("-------------------------------------------------------------------------------------------------");
+//            List<User> userList=getAllUsers();
+//            for (User user:userList)
+//            {
+//                System.out.println(user);
+//            }
         }
         catch(Exception ex)
         {

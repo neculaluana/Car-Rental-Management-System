@@ -77,14 +77,6 @@ public class Employee {
 
     @Override
     public String toString() {
-        return "Employee{" +
-                "Id=" + Id +
-                ", CNP='" + CNP + '\'' +
-                ", Name='" + Name + '\'' +
-                ", Address='" + Address + '\'' +
-                ", Birthdate=" + Birthdate +
-                ", EmploymentDate=" + EmploymentDate +
-                ", Position='" + Position + '\'' +
-                '}';
+        return this.Name;
     }
 }

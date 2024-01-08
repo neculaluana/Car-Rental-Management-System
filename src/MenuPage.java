@@ -8,6 +8,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MenuPage extends JFrame {
@@ -18,6 +21,15 @@ public class MenuPage extends JFrame {
     private int currentRentalId = -1;
     private int currentPaymentId = -1;
     private int currentInvoiceId = -1;
+
+    List<Car> carList=new ArrayList<>();
+    List<Client> clientList=new ArrayList<>();
+    List<Employee> employeeList=new ArrayList<>();
+    List<Rental> rentalList=new ArrayList<>();
+//    List<Payment> paymentList=new ArrayList<>();
+//    List<Invoice> invoiceList=new ArrayList<>();
+    DefaultComboBoxModel<String> employeeComboBoxModel = new DefaultComboBoxModel<>();
+
     public MenuPage() {
         setTitle("Car Rental");
         setSize(800, 600);
@@ -28,16 +40,17 @@ public class MenuPage extends JFrame {
 
         tabbedPane.addTab("Cars", createCarsPanel());
         tabbedPane.addTab("Clients", createClientsPanel());
+        tabbedPane.addTab("Employee", createEmployeesPanel());
         tabbedPane.addTab("Rentals", createRentalsPanel());
         tabbedPane.addTab("Payments", createPaymentsPanel());
         tabbedPane.addTab("Invoices", createInvoicesPanel());
-        tabbedPane.addTab("Employee", createEmployeesPanel());
+
 
         add(tabbedPane);
 
         setVisible(true);
     }
-
+    //Car Panel
     private JPanel createCarsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
@@ -50,8 +63,8 @@ public class MenuPage extends JFrame {
                 return false;
             }
         };
-        List<Car> cars = DbUtils.getAllCars();
-        for (Car car : cars) {
+        carList = DbUtils.getAllCars();
+        for (Car car : carList) {
             model.addRow(new Object[]{
                     car.getLicencePlate(),
                     car.getBrand(),
@@ -136,8 +149,8 @@ public class MenuPage extends JFrame {
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Car saved successfully.");
                     List<Car> newCars=DbUtils.getAllCars();
-                    cars.clear();
-                    cars.addAll(newCars);
+                    carList.clear();
+                    carList.addAll(newCars);
                     refreshCarTable(model);
 
                 } else {
@@ -188,8 +201,8 @@ public class MenuPage extends JFrame {
         });
         deleteButton.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row != -1 && row < cars.size()) {
-                Car carToDelete = cars.get(row);
+            if (row != -1 && row < carList.size()) {
+                Car carToDelete = carList.get(row);
                 int carId = carToDelete.getId(); // Get car ID from the Car object
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this car?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
@@ -198,7 +211,7 @@ public class MenuPage extends JFrame {
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Car deleted successfully.");
                         model.removeRow(row); // Remove the row from the table model
-                        cars.remove(row); // Also remove the car from the list
+                        carList.remove(row); // Also remove the car from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete car.");
                     }
@@ -226,7 +239,7 @@ public class MenuPage extends JFrame {
                     if (isCellValid) {
                         table.setRowSelectionInterval(row, row);
                         if(e.getClickCount() ==2){
-                            Car selectedCar = cars.get(rowIndex);
+                            Car selectedCar = carList.get(rowIndex);
                             currentCarId = selectedCar.getId();
                             licencePlateField.setText(model.getValueAt(row, 0).toString());
                             brandField.setText(model.getValueAt(row, 1).toString());
@@ -273,7 +286,6 @@ public class MenuPage extends JFrame {
         panel.add(addCarEditArea, BorderLayout.SOUTH);
         return panel;
     }
-
     private void clearCarAddEditFields(JTextField licencePlateField, JTextField brandField, JTextField modelField, JTextField chassisSeriesField, JTextField seatsNumberField, JTextField fuelTypeField, JTextField manufactureYearField, JTextField colorField, JCheckBox availabilityCheckBox, JTextField dailyRateField) {
         licencePlateField.setText("");
         brandField.setText("");
@@ -305,6 +317,8 @@ public class MenuPage extends JFrame {
             });
         }
     }
+
+    //Client Panel
     private JPanel createClientsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -321,9 +335,9 @@ public class MenuPage extends JFrame {
             }
         };
 
-        List<Client> clients = DbUtils.getAllClients();
+        clientList = DbUtils.getAllClients();
 
-        for (Client client : clients) {
+        for (Client client : clientList) {
             model.addRow(new Object[]{
                     client.getCNP(),
                     client.getName(),
@@ -414,8 +428,8 @@ public class MenuPage extends JFrame {
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Client saved successfully.");
                     List<Client> newClients = DbUtils.getAllClients();
-                    clients.clear();
-                    clients.addAll(newClients);
+                    clientList.clear();
+                    clientList.addAll(newClients);
                     refreshClientTable(model);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save client.");
@@ -460,8 +474,8 @@ public class MenuPage extends JFrame {
         });
         deleteButton.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row != -1 && row < clients.size()) {
-                Client clientToDelete = clients.get(row);
+            if (row != -1 && row < clientList.size()) {
+                Client clientToDelete = clientList.get(row);
                 int clientId = clientToDelete.getId(); // Get client ID from the Client object
 
                 // Display a confirmation dialog
@@ -472,7 +486,8 @@ public class MenuPage extends JFrame {
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Client deleted successfully.");
                         model.removeRow(row); // Remove the row from the table model
-                        clients.remove(row); // Also remove the client from the list
+                        Client clientToRemove= clientList.get(row);
+                        clientList.remove(clientToRemove); // Also remove the client from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete client.");
                     }
@@ -501,7 +516,7 @@ public class MenuPage extends JFrame {
                     if (isCellValid) {
                         table.setRowSelectionInterval(row, row);
                         if(e.getClickCount() ==2){
-                        Client selectedClient = clients.get(rowIndex);
+                        Client selectedClient = clientList.get(rowIndex);
                         cnpField.setText(model.getValueAt(rowIndex, 0).toString());
                         nameField.setText(model.getValueAt(rowIndex, 1).toString());
                         addressField.setText(model.getValueAt(rowIndex, 2).toString());
@@ -544,7 +559,6 @@ public class MenuPage extends JFrame {
 
         return panel;
     }
-
     private void clearClientAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,
                                           JTextField emailField, JTextField phoneNumberField, JTextField birthdateField,
                                           JTextField originCountryField, JTextField driverLicenseNumberField,
@@ -588,6 +602,8 @@ public class MenuPage extends JFrame {
             });
         }
     }
+
+    //Employee Panel
     private JPanel createEmployeesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -603,9 +619,9 @@ public class MenuPage extends JFrame {
             }
         };
 
-        List<Employee> employees = DbUtils.getAllEmployees();
+        employeeList = DbUtils.getAllEmployees();
 
-        for (Employee employee : employees) {
+        for (Employee employee : employeeList) {
             model.addRow(new Object[]{
                     employee.getCNP(),
                     employee.getName(),
@@ -670,8 +686,8 @@ public class MenuPage extends JFrame {
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Employee saved successfully.");
                     List<Employee> newEmployees = DbUtils.getAllEmployees();
-                    employees.clear();
-                    employees.addAll(newEmployees);
+                    employeeList.clear();
+                    employeeList.addAll(newEmployees);
                     refreshEmployeeTable(model);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save employee.");
@@ -714,8 +730,8 @@ public class MenuPage extends JFrame {
         });
         deleteButton.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row != -1 && row < employees.size()) {
-                Employee employeeToDelete = employees.get(row);
+            if (row != -1 && row < employeeList.size()) {
+                Employee employeeToDelete = employeeList.get(row);
                 int employeeId = employeeToDelete.getId(); // Get employee ID from the Employee object
 
                 // Display a confirmation dialog
@@ -726,7 +742,7 @@ public class MenuPage extends JFrame {
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Employee deleted successfully.");
                         model.removeRow(row); // Remove the row from the table model
-                        employees.remove(row); // Also remove the employee from the list
+                        employeeList.remove(row); // Also remove the employee from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete employee.");
                     }
@@ -755,7 +771,7 @@ public class MenuPage extends JFrame {
                     if (isCellValid) {
                         table.setRowSelectionInterval(row, row);
                         if (e.getClickCount() == 2) {
-                            Employee selectedEmployee = employees.get(rowIndex);
+                            Employee selectedEmployee = employeeList.get(rowIndex);
                             cnpField.setText(model.getValueAt(rowIndex, 0).toString());
                             nameField.setText(model.getValueAt(rowIndex, 1).toString());
                             addressField.setText(model.getValueAt(rowIndex, 2).toString());
@@ -800,7 +816,6 @@ public class MenuPage extends JFrame {
 
         return panel;
     }
-
     private void clearEmployeeAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,
                                             JTextField birthdateField, JTextField employmentDateField,
                                             JTextField positionField) {
@@ -832,6 +847,9 @@ public class MenuPage extends JFrame {
             });
         }
     }
+
+
+    //Rental Panel
     private JPanel createRentalsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
@@ -844,8 +862,8 @@ public class MenuPage extends JFrame {
                 return false;
             }
         };
-        List<Rental> rentals = DbUtils.getAllRentals();
-        for (Rental rental : rentals) {
+        rentalList = DbUtils.getAllRentals();
+        for (Rental rental : rentalList) {
             String carPlate = DbUtils.getCarPlateById(rental.getCarId());
             String clientName = DbUtils.getClientNameById(rental.getClientId());
             String employeeName = DbUtils.getEmployeeNameById(rental.getEmployeeId());
@@ -859,6 +877,7 @@ public class MenuPage extends JFrame {
             });
         }
 
+
         JTable table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
@@ -869,29 +888,35 @@ public class MenuPage extends JFrame {
         // Add fields for Rental attributes
         JTextField startDateField = new JTextField();
         JTextField endDateField = new JTextField();
-        JTextField carIdField = new JTextField();
-        JTextField clientIdField = new JTextField();
-        JTextField employeeIdField = new JTextField();
+        JComboBox<Car> carComboBox = new JComboBox<>();
+        JComboBox<Client> clientComboBox = new JComboBox<>();
+        JComboBox<Employee> employeeComboBox = new JComboBox<>();
+
 
         // Adding labels and text fields to the panel
         addRentalEditArea.add(new JLabel("Start Date:"));
         addRentalEditArea.add(startDateField);
         addRentalEditArea.add(new JLabel("End Date:"));
         addRentalEditArea.add(endDateField);
-        addRentalEditArea.add(new JLabel("Car ID:"));
-        addRentalEditArea.add(carIdField);
-        addRentalEditArea.add(new JLabel("Client ID:"));
-        addRentalEditArea.add(clientIdField);
-        addRentalEditArea.add(new JLabel("Employee ID:"));
-        addRentalEditArea.add(employeeIdField);
+        addRentalEditArea.add(new JLabel("Car:"));
+        addRentalEditArea.add(carComboBox);
+        addRentalEditArea.add(new JLabel("Client:"));
+        addRentalEditArea.add(clientComboBox);
+        addRentalEditArea.add(new JLabel("Employee:"));
+        addRentalEditArea.add(employeeComboBox);
+
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
+
                 // Parse integer values from text fields
-                int carId = Integer.parseInt(carIdField.getText());
-                int clientId = Integer.parseInt(clientIdField.getText());
-                int employeeId = Integer.parseInt(employeeIdField.getText());
+                Car selectedCar=(Car) carComboBox.getSelectedItem();
+                int carId = selectedCar.getId();
+                Client selectedClient=(Client) clientComboBox.getSelectedItem();
+                int clientId = selectedClient.getId();
+                Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
+                int employeeId = selectedEmployee.getId();
 
                 // Parse date values from text fields
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -915,8 +940,8 @@ public class MenuPage extends JFrame {
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Rental saved successfully.");
                     List<Rental> newRentals = DbUtils.getAllRentals();
-                    rentals.clear();
-                    rentals.addAll(newRentals);
+                    rentalList.clear();
+                    rentalList.addAll(newRentals);
                     refreshRentalTable(model);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save rental.");
@@ -935,9 +960,16 @@ public class MenuPage extends JFrame {
             // Clear all fields
             startDateField.setText("");
             endDateField.setText("");
-            carIdField.setText("");
-            clientIdField.setText("");
-            employeeIdField.setText("");
+            if (carComboBox.getItemCount() > 0) {
+                carComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+            }
+            if (clientComboBox.getItemCount() > 0) {
+                clientComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+            }
+            if (employeeComboBox.getItemCount() > 0) {
+                employeeComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+            } // This sets the selection to the first item in the combo box
+
         });
 
         addRentalEditArea.add(saveButton);
@@ -957,14 +989,32 @@ public class MenuPage extends JFrame {
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
-            clearRentalAddEditFields(startDateField, endDateField, carIdField, clientIdField, employeeIdField);
+            clearRentalAddEditFields(startDateField, endDateField, carComboBox, clientComboBox, employeeComboBox);
+            carComboBox.removeAllItems();
+            clientComboBox.removeAllItems();
+            employeeComboBox.removeAllItems();
+            currentRentalId=-1;
+
+            for (Car car : carList) {
+
+                carComboBox.addItem(car); // Add the entire employee object
+            }
+
+            for (Client client : clientList) {
+
+                clientComboBox.addItem(client); // Add the entire employee object
+            }
+
+            for (Employee employee : employeeList) {
+
+                employeeComboBox.addItem(employee); // Add the entire employee object
+            }
             addRentalEditArea.setVisible(true);
-            currentEmployeeId=-1;
         });
         deleteButton.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row != -1 && row < rentals.size()) {
-                Rental rentalToDelete = rentals.get(row);
+            if (row != -1 && row < rentalList.size()) {
+                Rental rentalToDelete = rentalList.get(row);
                 int rentalId = rentalToDelete.getId(); // Get rental ID from the Rental object
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this rental?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
@@ -973,7 +1023,7 @@ public class MenuPage extends JFrame {
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Rental deleted successfully.");
                         model.removeRow(row); // Remove the row from the table model
-                        rentals.remove(row); // Also remove the rental from the list
+                        rentalList.remove(row);// Also remove the rental from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete rental.");
                     }
@@ -1001,13 +1051,53 @@ public class MenuPage extends JFrame {
                     if (isCellValid) {
                         table.setRowSelectionInterval(row, row);
                         if (e.getClickCount() == 2) {
-                            Rental selectedRental = rentals.get(rowIndex);
+                            Rental selectedRental = rentalList.get(rowIndex);
 
                             startDateField.setText(model.getValueAt(row, 0).toString());
                             endDateField.setText(model.getValueAt(row, 1).toString());
-                            carIdField.setText(model.getValueAt(row, 2).toString());
-                            clientIdField.setText(model.getValueAt(row, 3).toString());
-                            employeeIdField.setText(model.getValueAt(row, 4).toString());
+                            carComboBox.removeAllItems();
+                            clientComboBox.removeAllItems();
+                            employeeComboBox.removeAllItems();
+                            currentRentalId=-1;
+                            for (Car car : carList) {
+
+                                carComboBox.addItem(car); // Add the entire employee object
+                            }
+
+                            for (Client client : clientList) {
+
+                                clientComboBox.addItem(client); // Add the entire employee object
+                            }
+
+                            for (Employee employee : employeeList) {
+
+                                employeeComboBox.addItem(employee); // Add the entire employee object
+                            }
+                            addRentalEditArea.setVisible(true);
+                            int carId = selectedRental.getCarId(); // Assuming Rental object has getEmployeeId() method
+                            for (int i = 0; i < carComboBox.getItemCount(); i++) {
+                                Car car = carComboBox.getItemAt(i);
+                                if (car.getId() == carId) { // Assuming Employee object has getId() method
+                                    carComboBox.setSelectedIndex(i);
+                                    break;
+                                }
+                            }
+                            int clientId = selectedRental.getClientId(); // Assuming Rental object has getEmployeeId() method
+                            for (int i = 0; i < clientComboBox.getItemCount(); i++) {
+                                Client client = clientComboBox.getItemAt(i);
+                                if (client.getId() == clientId) { // Assuming Employee object has getId() method
+                                    clientComboBox.setSelectedIndex(i);
+                                    break;
+                                }
+                            }
+                            int employeeId = selectedRental.getEmployeeId(); // Assuming Rental object has getEmployeeId() method
+                            for (int i = 0; i < employeeComboBox.getItemCount(); i++) {
+                                Employee employee = employeeComboBox.getItemAt(i);
+                                if (employee.getId() == employeeId) { // Assuming Employee object has getId() method
+                                    employeeComboBox.setSelectedIndex(i);
+                                    break;
+                                }
+                            }
                             addRentalEditArea.setVisible(true);
                             currentRentalId=selectedRental.getId();
                         }
@@ -1036,7 +1126,7 @@ public class MenuPage extends JFrame {
         });
 
         clearButton.addActionListener(e -> {
-            clearRentalAddEditFields(startDateField, endDateField, carIdField, clientIdField, employeeIdField);
+            clearRentalAddEditFields(startDateField, endDateField, carComboBox, clientComboBox, employeeComboBox);
             addRentalEditArea.setVisible(false);
             table.clearSelection();
         });
@@ -1046,27 +1136,35 @@ public class MenuPage extends JFrame {
         panel.add(addRentalEditArea, BorderLayout.SOUTH);
         return panel;
     }
-
-    private void clearRentalAddEditFields(JTextField startDateField, JTextField endDateField, JTextField carIdField, JTextField clientIdField, JTextField employeeIdField) {
+    private void clearRentalAddEditFields(JTextField startDateField, JTextField endDateField, JComboBox<Car> carComboBox,JComboBox<Client> clientComboBox, JComboBox<Employee> employeeComboBox) {
 
         startDateField.setText("");
         endDateField.setText("");
-        carIdField.setText("");
-        clientIdField.setText("");
-        employeeIdField.setText("");
+        if (carComboBox.getItemCount() > 0) {
+            carComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+        }
+        if (clientComboBox.getItemCount() > 0) {
+            clientComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+        }
+        if (employeeComboBox.getItemCount() > 0) {
+            employeeComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+        }
     }
-
     private void refreshRentalTable(DefaultTableModel model) {
         List<Rental> rentals = DbUtils.getAllRentals(); // Fetch the updated list
         model.setRowCount(0); // Clear existing data
 
-        for (Rental rental : rentals) {
+        for (Rental rental : rentalList) {
+            String carPlate = DbUtils.getCarPlateById(rental.getCarId());
+            String clientName = DbUtils.getClientNameById(rental.getClientId());
+            String employeeName = DbUtils.getEmployeeNameById(rental.getEmployeeId());
+
             model.addRow(new Object[]{
                     rental.getStartDate(),
                     rental.getEndDate(),
-                    rental.getCarId(),
-                    rental.getClientId(),
-                    rental.getEmployeeId()
+                    carPlate,
+                    clientName,
+                    employeeName
             });
         }
     }

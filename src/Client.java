@@ -127,19 +127,6 @@ public class Client {
 
     @Override
     public String toString() {
-        return "Client{" +
-                "Id=" + Id +
-                ", CNP='" + CNP + '\'' +
-                ", Name='" + Name + '\'' +
-                ", Address='" + Address + '\'' +
-                ", Email='" + Email + '\'' +
-                ", PhoneNumber='" + PhoneNumber + '\'' +
-                ", Birthdate=" + Birthdate +
-                ", OriginCountry='" + OriginCountry + '\'' +
-                ", DriverLicenseNumber='" + DriverLicenseNumber + '\'' +
-                ", IssueDate=" + IssueDate +
-                ", ExpirationDate=" + ExpirationDate +
-                ", CarCategories='" + CarCategories + '\'' +
-                '}';
+        return this.Name+", "+this.Birthdate;
     }
 }

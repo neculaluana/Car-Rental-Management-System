@@ -116,18 +116,6 @@ public class Car {
 
     @Override
     public String toString() {
-        return "Car{" +
-                "Id=" + Id +
-                ", LicencePlate='" + LicencePlate + '\'' +
-                ", Brand='" + Brand + '\'' +
-                ", Model='" + Model + '\'' +
-                ", ChassisSeries='" + ChassisSeries + '\'' +
-                ", SeatsNumber=" + SeatsNumber +
-                ", FuelType='" + FuelType + '\'' +
-                ", ManufactureYear=" + ManufactureYear +
-                ", Color='" + Color + '\'' +
-                ", Availability=" + Availability +
-                ", DailyRate=" + DailyRate +
-                '}';
+        return this.Brand+", "+this.Model+", "+this.LicencePlate;
     }
 }
