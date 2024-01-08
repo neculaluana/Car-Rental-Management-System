@@ -994,18 +994,36 @@ public class MenuPage extends JFrame {
             clientComboBox.removeAllItems();
             employeeComboBox.removeAllItems();
             currentRentalId=-1;
+            List<Car> sortedCarList=new ArrayList<>(carList);
+            Collections.sort(sortedCarList, new Comparator<Car>() {
+                @Override
+                public int compare(Car c1, Car c2) {
+                    return c1.toString().compareToIgnoreCase(c2.toString());
+                }
+            });
+            for (Car car : sortedCarList) {
 
-            for (Car car : carList) {
-
-                carComboBox.addItem(car); // Add the entire employee object
+                carComboBox.addItem(car);
             }
+            List<Client> sortedClientList=new ArrayList<>(clientList);
+            Collections.sort(sortedClientList, new Comparator<Client>() {
+                @Override
+                public int compare(Client c1, Client c2) {
+                    return c1.toString().compareToIgnoreCase(c2.toString());
+                }
+            });
+            for (Client client : sortedClientList) {
 
-            for (Client client : clientList) {
-
-                clientComboBox.addItem(client); // Add the entire employee object
+                clientComboBox.addItem(client);
             }
-
-            for (Employee employee : employeeList) {
+            List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
+            Collections.sort(sortedEmployeeList, new Comparator<Employee>() {
+                @Override
+                public int compare(Employee e1, Employee e2) {
+                    return e1.toString().compareToIgnoreCase(e2.toString());
+                }
+            });
+            for (Employee employee : sortedEmployeeList) {
 
                 employeeComboBox.addItem(employee); // Add the entire employee object
             }
@@ -1059,17 +1077,36 @@ public class MenuPage extends JFrame {
                             clientComboBox.removeAllItems();
                             employeeComboBox.removeAllItems();
                             currentRentalId=-1;
-                            for (Car car : carList) {
+                            List<Car> sortedCarList=new ArrayList<>(carList);
+                            Collections.sort(sortedCarList, new Comparator<Car>() {
+                                @Override
+                                public int compare(Car c1, Car c2) {
+                                    return c1.toString().compareToIgnoreCase(c2.toString());
+                                }
+                            });
+                            for (Car car : sortedCarList) {
 
-                                carComboBox.addItem(car); // Add the entire employee object
+                                carComboBox.addItem(car);
                             }
+                            List<Client> sortedClientList=new ArrayList<>(clientList);
+                            Collections.sort(sortedClientList, new Comparator<Client>() {
+                                @Override
+                                public int compare(Client c1, Client c2) {
+                                    return c1.toString().compareToIgnoreCase(c2.toString());
+                                }
+                            });
+                            for (Client client : sortedClientList) {
 
-                            for (Client client : clientList) {
-
-                                clientComboBox.addItem(client); // Add the entire employee object
+                                clientComboBox.addItem(client);
                             }
-
-                            for (Employee employee : employeeList) {
+                            List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
+                            Collections.sort(sortedEmployeeList, new Comparator<Employee>() {
+                                @Override
+                                public int compare(Employee e1, Employee e2) {
+                                    return e1.toString().compareToIgnoreCase(e2.toString());
+                                }
+                            });
+                            for (Employee employee : sortedEmployeeList) {
 
                                 employeeComboBox.addItem(employee); // Add the entire employee object
                             }
