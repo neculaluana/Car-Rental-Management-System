@@ -18,7 +18,8 @@ public class LoginPage extends JDialog {
         setModal(true);
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-
+        ImageIcon icon=new ImageIcon("C:\\MyRepos\\CarRental\\images.jpg");
+        setIconImage(icon.getImage());
         txtUsername = new JTextField();
         passPassword = new JPasswordField();
         buttonOk = new JButton("Login");

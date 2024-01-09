@@ -40,8 +40,9 @@ public class MenuPage extends JFrame {
         setTitle("Car Rental");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the window
-
+        setLocationRelativeTo(null);
+        ImageIcon icon=new ImageIcon("C:\\MyRepos\\CarRental\\images.jpg");
+        setIconImage(icon.getImage());
         tabbedPane = new JTabbedPane();
 
         tabbedPane.addTab("Cars", createCarsPanel());
@@ -56,7 +57,7 @@ public class MenuPage extends JFrame {
 
         setVisible(true);
     }
-    //Car Panel
+
     private JPanel createCarsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
@@ -65,7 +66,7 @@ public class MenuPage extends JFrame {
         carModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // This will make none of the cells editable directly by double-clicking
+
                 return false;
             }
         };
@@ -89,10 +90,10 @@ public class MenuPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Add/Edit Area
+
         JPanel addCarEditArea = new JPanel(new GridLayout(0, 2));
 
-        // Add fields for Car attributes
+
         JTextField licencePlateField = new JTextField();
         JTextField brandField = new JTextField();
         JTextField modelField = new JTextField();
@@ -103,7 +104,7 @@ public class MenuPage extends JFrame {
         JTextField colorField = new JTextField();
         JTextField dailyRateField = new JTextField();
 
-        // Adding labels and text fields to the panel
+
         addCarEditArea.add(new JLabel("Licence Plate:"));
         addCarEditArea.add(licencePlateField);
         addCarEditArea.add(new JLabel("Brand:"));
@@ -126,12 +127,12 @@ public class MenuPage extends JFrame {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
-                // Parse integer and float values from text fields
+
                 int seatsNumber = Integer.parseInt(seatsNumberField.getText());
                 int manufactureYear = Integer.parseInt(manufactureYearField.getText());
                 float dailyRate = Float.parseFloat(dailyRateField.getText());
 
-                // Create a new Car object with the values from the text fields
+
                 Car car = new Car(
                         currentCarId,
                         licencePlateField.getText(),
@@ -145,7 +146,7 @@ public class MenuPage extends JFrame {
                         dailyRate
                 );
 
-                // Call the addEditCar method from DbUtils
+
                 boolean success = DbUtils.addEditCar(car);
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Car saved successfully.");
@@ -168,7 +169,7 @@ public class MenuPage extends JFrame {
 
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
-            // Clear all fields
+
             licencePlateField.setText("");
             brandField.setText("");
             modelField.setText("");
@@ -186,14 +187,14 @@ public class MenuPage extends JFrame {
         panel.add(addCarEditArea, BorderLayout.SOUTH);
         addCarEditArea.setVisible(false);
 
-        // Add New Entry Button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addNewEntryButton = new JButton("Add Car");
         buttonPanel.add(addNewEntryButton);
         JButton deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
 
-        // Add buttons to the right-aligned panel
+
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
@@ -205,29 +206,29 @@ public class MenuPage extends JFrame {
             int row = table.getSelectedRow();
             if (row != -1 && row < carList.size()) {
                 Car carToDelete = carList.get(row);
-                int carId = carToDelete.getId(); // Get car ID from the Car object
+                int carId = carToDelete.getId();
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this car?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
                 if (choice == JOptionPane.YES_OPTION) {
                     boolean success = DbUtils.deleteCar(carId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Car deleted successfully.");
-                        carModel.removeRow(row); // Remove the row from the table model
-                        carList.remove(row); // Also remove the car from the list
+                        carModel.removeRow(row);
+                        carList.remove(row);
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete car.");
                     }
             }}
         });
 
-        // Add a selection listener to the table to enable the Delete button when a row is selected
+
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { // This check prevents double events
+            if (!e.getValueIsAdjusting()) {
                 deleteButton.setEnabled(table.getSelectedRow() != -1);
             }
         });
-//        panel.add(addNewEntryButton, BorderLayout.NORTH);
-        // Double-click listener to load data into fields
+
+
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() >0) {
@@ -251,7 +252,7 @@ public class MenuPage extends JFrame {
                             fuelTypeField.setText(carModel.getValueAt(row, 5).toString());
                             manufactureYearField.setText(carModel.getValueAt(row, 6).toString());
                             colorField.setText(carModel.getValueAt(row, 7).toString());
-                            dailyRateField.setText(carModel.getValueAt(row, 9).toString());
+                            dailyRateField.setText(carModel.getValueAt(row, 8).toString());
                             addCarEditArea.setVisible(true);
                         }
                     }
@@ -271,7 +272,7 @@ public class MenuPage extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 boolean rowSelected = (table.getSelectedRow() != -1);
                 deleteButton.setEnabled(rowSelected);
-                // If no row is selected, hide the Add/Edit area
+
                 if (!rowSelected) {
                     addCarEditArea.setVisible(false);
                 }
@@ -299,8 +300,8 @@ public class MenuPage extends JFrame {
         dailyRateField.setText("");
     }
     private void refreshCarTable(DefaultTableModel model) {
-        List<Car> cars = DbUtils.getAllCars(); // Fetch the updated list
-        model.setRowCount(0); // Clear existing data
+        List<Car> cars = DbUtils.getAllCars();
+        model.setRowCount(0);
 
         for (Car car : cars) {
             model.addRow(new Object[]{
@@ -317,7 +318,7 @@ public class MenuPage extends JFrame {
         }
     }
 
-    //Client Panel
+
     private JPanel createClientsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -329,7 +330,7 @@ public class MenuPage extends JFrame {
         clientModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // This will make none of the cells editable directly by double-clicking
+
                 return false;
             }
         };
@@ -356,10 +357,10 @@ public class MenuPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Add/Edit Area
+
         JPanel addClientEditArea = new JPanel(new GridLayout(0, 2));
 
-        // Add fields for Client attributes
+
         JTextField cnpField = new JTextField();
         JTextField nameField = new JTextField();
         JTextField addressField = new JTextField();
@@ -375,7 +376,7 @@ public class MenuPage extends JFrame {
         expirationDatePicker.setFormats("yyyy-MM-dd");
         JTextField carCategoriesField = new JTextField();
 
-        // Adding labels and text fields to the panel
+
         addClientEditArea.add(new JLabel("CNP:"));
         addClientEditArea.add(cnpField);
         addClientEditArea.add(new JLabel("Name:"));
@@ -402,7 +403,7 @@ public class MenuPage extends JFrame {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
-                // Parse Date values from text fields
+
                 java.util.Date utilBirthDate = birthDatePicker.getDate();
                 java.sql.Date birthDate = new java.sql.Date(utilBirthDate.getTime());
                 java.util.Date utilIssueDate = issueDatePicker.getDate();
@@ -410,9 +411,9 @@ public class MenuPage extends JFrame {
                 java.util.Date utilExpirationDate = expirationDatePicker.getDate();
                 java.sql.Date expirationDate = new java.sql.Date(utilExpirationDate.getTime());
 
-                // Create a new Client object with the values from the text fields
+
                 Client client = new Client(
-                        currentClientId, // Set the ID to -1 as it's a new client
+                        currentClientId,
                         cnpField.getText(),
                         nameField.getText(),
                         addressField.getText(),
@@ -426,7 +427,7 @@ public class MenuPage extends JFrame {
                         carCategoriesField.getText()
                 );
 
-                // Call the addEditClient method from DbUtils
+
                 boolean success = DbUtils.addEditClient(client);
 
                 if (success) {
@@ -447,7 +448,7 @@ public class MenuPage extends JFrame {
 
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
-            // Clear all fields
+
             clearClientAddEditFields(cnpField, nameField, addressField, emailField, phoneNumberField,
                     birthDatePicker, originCountryField, driverLicenseNumberField, issueDatePicker,
                     expirationDatePicker, carCategoriesField);
@@ -459,14 +460,14 @@ public class MenuPage extends JFrame {
         panel.add(addClientEditArea, BorderLayout.SOUTH);
         addClientEditArea.setVisible(false);
 
-        // Add New Entry Button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addNewEntryButton = new JButton("Add Client");
         buttonPanel.add(addNewEntryButton);
         JButton deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
 
-        // Add buttons to the right-aligned panel
+
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
@@ -480,18 +481,18 @@ public class MenuPage extends JFrame {
             int row = table.getSelectedRow();
             if (row != -1 && row < clientList.size()) {
                 Client clientToDelete = clientList.get(row);
-                int clientId = clientToDelete.getId(); // Get client ID from the Client object
+                int clientId = clientToDelete.getId();
 
-                // Display a confirmation dialog
+
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this client?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
                 if (choice == JOptionPane.YES_OPTION) {
                     boolean success = DbUtils.deleteClient(clientId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Client deleted successfully.");
-                        clientModel.removeRow(row); // Remove the row from the table model
+                        clientModel.removeRow(row);
                         Client clientToRemove= clientList.get(row);
-                        clientList.remove(clientToRemove); // Also remove the client from the list
+                        clientList.remove(clientToRemove);
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete client.");
                     }
@@ -499,14 +500,14 @@ public class MenuPage extends JFrame {
             }
         });
 
-        // Add a selection listener to the table to enable the Delete button when a row is selected
+
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { // This check prevents double events
+            if (!e.getValueIsAdjusting()) {
                 deleteButton.setEnabled(table.getSelectedRow() != -1);
             }
         });
 
-        // Double-click listener to load data into fields
+
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() >0) {
@@ -583,13 +584,13 @@ public class MenuPage extends JFrame {
         carCategoriesField.setText("");
     }
     private void refreshClientTable(DefaultTableModel model) {
-        // Clear the existing rows from the table model
+
         int rowCount = model.getRowCount();
         for (int i = rowCount - 1; i >= 0; i--) {
             model.removeRow(i);
         }
 
-        // Get the latest client data from the database and add it to the table model
+
         List<Client> clients = DbUtils.getAllClients();
         for (Client client : clients) {
             model.addRow(new Object[]{
@@ -608,7 +609,7 @@ public class MenuPage extends JFrame {
         }
     }
 
-    //Employee Panel
+
     private JPanel createEmployeesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -619,7 +620,7 @@ public class MenuPage extends JFrame {
         employeeModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // This will make none of the cells editable directly by double-clicking
+
                 return false;
             }
         };
@@ -641,10 +642,10 @@ public class MenuPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Add/Edit Area
+
         JPanel addEmployeeEditArea = new JPanel(new GridLayout(0, 2));
 
-        // Add fields for Employee attributes
+
         JTextField cnpField = new JTextField();
         JTextField nameField = new JTextField();
         JTextField addressField = new JTextField();
@@ -654,7 +655,7 @@ public class MenuPage extends JFrame {
         employmentDatePicker.setFormats("yyyy-MM-dd");
         JTextField positionField = new JTextField();
 
-        // Adding labels and text fields to the panel
+
         addEmployeeEditArea.add(new JLabel("CNP:"));
         addEmployeeEditArea.add(cnpField);
         addEmployeeEditArea.add(new JLabel("Name:"));
@@ -671,15 +672,15 @@ public class MenuPage extends JFrame {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
-                // Parse Date value from text field
+
                 java.util.Date utilBirthDate = birthDatePicker.getDate();
                 java.sql.Date birthDate = new java.sql.Date(utilBirthDate.getTime());
                 java.util.Date utilEmployementDate = employmentDatePicker.getDate();
                 java.sql.Date employmentDate = new java.sql.Date(utilEmployementDate.getTime());
 
-                // Create a new Employee object with the values from the text fields
+
                 Employee employee = new Employee(
-                        currentEmployeeId, // Set the ID to -1 as it's a new employee
+                        currentEmployeeId,
                         cnpField.getText(),
                         nameField.getText(),
                         addressField.getText(),
@@ -688,7 +689,7 @@ public class MenuPage extends JFrame {
                         positionField.getText()
                 );
 
-                // Call the addEditEmployee method from DbUtils
+
                 boolean success = DbUtils.addEditEmployee(employee);
 
                 if (success) {
@@ -710,7 +711,7 @@ public class MenuPage extends JFrame {
 
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
-            // Clear all fields
+
             clearEmployeeAddEditFields(cnpField, nameField, addressField, birthDatePicker,
                     employmentDatePicker, positionField);
         });
@@ -721,14 +722,14 @@ public class MenuPage extends JFrame {
         panel.add(addEmployeeEditArea, BorderLayout.SOUTH);
         addEmployeeEditArea.setVisible(false);
 
-        // Add New Entry Button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addNewEntryButton = new JButton("Add Employee");
         buttonPanel.add(addNewEntryButton);
         JButton deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
 
-        // Add buttons to the right-aligned panel
+
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
@@ -741,17 +742,17 @@ public class MenuPage extends JFrame {
             int row = table.getSelectedRow();
             if (row != -1 && row < employeeList.size()) {
                 Employee employeeToDelete = employeeList.get(row);
-                int employeeId = employeeToDelete.getId(); // Get employee ID from the Employee object
+                int employeeId = employeeToDelete.getId();
 
-                // Display a confirmation dialog
+
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this employee?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
                 if (choice == JOptionPane.YES_OPTION) {
                     boolean success = DbUtils.deleteEmployee(employeeId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Employee deleted successfully.");
-                        employeeModel.removeRow(row); // Remove the row from the table model
-                        employeeList.remove(row); // Also remove the employee from the list
+                        employeeModel.removeRow(row);
+                        employeeList.remove(row);
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete employee.");
                     }
@@ -759,14 +760,14 @@ public class MenuPage extends JFrame {
             }
         });
 
-        // Add a selection listener to the table to enable the Delete button when a row is selected
+
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { // This check prevents double events
+            if (!e.getValueIsAdjusting()) {
                 deleteButton.setEnabled(table.getSelectedRow() != -1);
             }
         });
 
-        // Double-click listener to load data into fields
+
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() > 0) {
@@ -810,7 +811,7 @@ public class MenuPage extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 boolean rowSelected = (table.getSelectedRow() != -1);
                 deleteButton.setEnabled(rowSelected);
-                // If no row is selected, hide the Add/Edit area
+
                 if (!rowSelected) {
                     addEmployeeEditArea.setVisible(false);
                 }
@@ -838,13 +839,13 @@ public class MenuPage extends JFrame {
         positionField.setText("");
     }
     private void refreshEmployeeTable(DefaultTableModel model) {
-        // Clear the existing rows from the table model
+
         int rowCount = model.getRowCount();
         for (int i = rowCount - 1; i >= 0; i--) {
             model.removeRow(i);
         }
 
-        // Get the latest employee data from the database and add it to the table model
+
         List<Employee> employees = DbUtils.getAllEmployees();
         for (Employee employee : employees) {
             model.addRow(new Object[]{
@@ -859,7 +860,7 @@ public class MenuPage extends JFrame {
     }
 
 
-    //Rental Panel
+
     private JPanel createRentalsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
@@ -868,7 +869,7 @@ public class MenuPage extends JFrame {
         rentalModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // This will make none of the cells editable directly by double-clicking
+
                 return false;
             }
         };
@@ -892,10 +893,10 @@ public class MenuPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Add/Edit Area
+
         JPanel addRentalEditArea = new JPanel(new GridLayout(0, 2));
 
-        // Add fields for Rental attributes
+
         JXDatePicker startDatePicker = new JXDatePicker();
         startDatePicker.setFormats("yyyy-MM-dd");
         JXDatePicker endDatePicker = new JXDatePicker();
@@ -905,7 +906,7 @@ public class MenuPage extends JFrame {
         JComboBox<Employee> employeeComboBox = new JComboBox<>();
 
 
-        // Adding labels and text fields to the panel
+
         addRentalEditArea.add(new JLabel("Start Date:"));
         addRentalEditArea.add(startDatePicker);
         addRentalEditArea.add(new JLabel("End Date:"));
@@ -922,7 +923,7 @@ public class MenuPage extends JFrame {
         saveButton.addActionListener(e -> {
             try {
 
-                // Parse integer values from text fields
+
                 Car selectedCar=(Car) carComboBox.getSelectedItem();
                 int carId = selectedCar.getId();
                 Client selectedClient=(Client) clientComboBox.getSelectedItem();
@@ -930,14 +931,14 @@ public class MenuPage extends JFrame {
                 Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
                 int employeeId = selectedEmployee.getId();
 
-                // Parse date values from text fields
+
                 java.util.Date utilStartDate = startDatePicker.getDate();
                 java.sql.Date startDate = new java.sql.Date(utilStartDate.getTime());
                 java.util.Date utilEndDate = endDatePicker.getDate();
                 java.sql.Date endDate = new java.sql.Date(utilEndDate.getTime());
 
 
-                // Create a new Rental object with the values from the text fields
+
                 Rental rental = new Rental(
                         currentRentalId,
                         startDate,
@@ -947,7 +948,7 @@ public class MenuPage extends JFrame {
                         employeeId
                 );
 
-                // Call the addEditRental method from DbUtils
+
                 boolean success = DbUtils.addEditRental(rental);
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Rental saved successfully.");
@@ -968,18 +969,18 @@ public class MenuPage extends JFrame {
 
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
-            // Clear all fields
+
             startDatePicker.setDate(null);
             endDatePicker.setDate(null);
             if (carComboBox.getItemCount() > 0) {
-                carComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+                carComboBox.setSelectedIndex(0);
             }
             if (clientComboBox.getItemCount() > 0) {
-                clientComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+                clientComboBox.setSelectedIndex(0);
             }
             if (employeeComboBox.getItemCount() > 0) {
-                employeeComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
-            } // This sets the selection to the first item in the combo box
+                employeeComboBox.setSelectedIndex(0);
+            }
 
         });
 
@@ -989,14 +990,14 @@ public class MenuPage extends JFrame {
         panel.add(addRentalEditArea, BorderLayout.SOUTH);
         addRentalEditArea.setVisible(false);
 
-        // Add New Entry Button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addNewEntryButton = new JButton("Add Rental");
         buttonPanel.add(addNewEntryButton);
         JButton deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
 
-        // Add buttons to the right-aligned panel
+
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
@@ -1036,7 +1037,7 @@ public class MenuPage extends JFrame {
             });
             for (Employee employee : sortedEmployeeList) {
 
-                employeeComboBox.addItem(employee); // Add the entire employee object
+                employeeComboBox.addItem(employee);
             }
             addRentalEditArea.setVisible(true);
         });
@@ -1044,15 +1045,15 @@ public class MenuPage extends JFrame {
             int row = table.getSelectedRow();
             if (row != -1 && row < rentalList.size()) {
                 Rental rentalToDelete = rentalList.get(row);
-                int rentalId = rentalToDelete.getId(); // Get rental ID from the Rental object
+                int rentalId = rentalToDelete.getId();
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this rental?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
 
                 if (choice == JOptionPane.YES_OPTION) {
                     boolean success = DbUtils.deleteRental(rentalId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Rental deleted successfully.");
-                        rentalModel.removeRow(row); // Remove the row from the table model
-                        rentalList.remove(row);// Also remove the rental from the list
+                        rentalModel.removeRow(row);
+                        rentalList.remove(row);
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete rental.");
                     }
@@ -1060,9 +1061,9 @@ public class MenuPage extends JFrame {
             }
         });
 
-        // Add a selection listener to the table to enable the Delete button when a row is selected
+
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { // This check prevents double events
+            if (!e.getValueIsAdjusting()) {
                 deleteButton.setEnabled(table.getSelectedRow() != -1);
             }
         });
@@ -1123,29 +1124,29 @@ public class MenuPage extends JFrame {
                             });
                             for (Employee employee : sortedEmployeeList) {
 
-                                employeeComboBox.addItem(employee); // Add the entire employee object
+                                employeeComboBox.addItem(employee);
                             }
                             addRentalEditArea.setVisible(true);
-                            int carId = selectedRental.getCarId(); // Assuming Rental object has getEmployeeId() method
+                            int carId = selectedRental.getCarId();
                             for (int i = 0; i < carComboBox.getItemCount(); i++) {
                                 Car car = carComboBox.getItemAt(i);
-                                if (car.getId() == carId) { // Assuming Employee object has getId() method
+                                if (car.getId() == carId) {
                                     carComboBox.setSelectedIndex(i);
                                     break;
                                 }
                             }
-                            int clientId = selectedRental.getClientId(); // Assuming Rental object has getEmployeeId() method
+                            int clientId = selectedRental.getClientId();
                             for (int i = 0; i < clientComboBox.getItemCount(); i++) {
                                 Client client = clientComboBox.getItemAt(i);
-                                if (client.getId() == clientId) { // Assuming Employee object has getId() method
+                                if (client.getId() == clientId) {
                                     clientComboBox.setSelectedIndex(i);
                                     break;
                                 }
                             }
-                            int employeeId = selectedRental.getEmployeeId(); // Assuming Rental object has getEmployeeId() method
+                            int employeeId = selectedRental.getEmployeeId();
                             for (int i = 0; i < employeeComboBox.getItemCount(); i++) {
                                 Employee employee = employeeComboBox.getItemAt(i);
-                                if (employee.getId() == employeeId) { // Assuming Employee object has getId() method
+                                if (employee.getId() == employeeId) {
                                     employeeComboBox.setSelectedIndex(i);
                                     break;
                                 }
@@ -1170,7 +1171,7 @@ public class MenuPage extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 boolean rowSelected = (table.getSelectedRow() != -1);
                 deleteButton.setEnabled(rowSelected);
-                // If no row is selected, hide the Add/Edit area
+
                 if (!rowSelected) {
                     addRentalEditArea.setVisible(false);
                 }
@@ -1193,18 +1194,18 @@ public class MenuPage extends JFrame {
         startdatePicker.setDate(null);
         enddatePicker.setDate(null);
         if (carComboBox.getItemCount() > 0) {
-            carComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+            carComboBox.setSelectedIndex(0);
         }
         if (clientComboBox.getItemCount() > 0) {
-            clientComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+            clientComboBox.setSelectedIndex(0);
         }
         if (employeeComboBox.getItemCount() > 0) {
-            employeeComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
+            employeeComboBox.setSelectedIndex(0);
         }
     }
     private void refreshRentalTable(DefaultTableModel model) {
-        List<Rental> rentals = DbUtils.getAllRentals(); // Fetch the updated list
-        model.setRowCount(0); // Clear existing data
+        List<Rental> rentals = DbUtils.getAllRentals();
+        model.setRowCount(0);
 
         for (Rental rental : rentalList) {
             String carPlate = DbUtils.getCarPlateById(rental.getCarId());
@@ -1230,7 +1231,7 @@ public class MenuPage extends JFrame {
         paymentModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // This will make none of the cells editable directly by double-clicking
+
                 return false;
             }
         };
@@ -1243,7 +1244,7 @@ public class MenuPage extends JFrame {
             for (Rental rental : rentalList) {
                 if (rental.getId() == payment.getRentalId()) {
                     rentalInfo = rental.toString();
-                    break; // Stop searching once you've found the matching Rental
+                    break;
                 }}
             paymentModel.addRow(new Object[]{
                     payment.getReceiptNumber(),
@@ -1259,10 +1260,10 @@ public class MenuPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Add/Edit Area
+
         JPanel addPaymentEditArea = new JPanel(new GridLayout(0, 2));
 
-        // Add fields for Payment attributes
+
         JTextField receiptNumberField = new JTextField();
         JTextField paymentDateField = new JTextField();
         JTextField amountField = new JTextField();
@@ -1270,7 +1271,7 @@ public class MenuPage extends JFrame {
         JComboBox<Employee> employeeComboBox = new JComboBox<>();
         JComboBox<Rental> rentalComboBox = new JComboBox<>();
 
-        // Adding labels and text fields to the panel
+
         addPaymentEditArea.add(new JLabel("Receipt Number:"));
         addPaymentEditArea.add(receiptNumberField);
         addPaymentEditArea.add(new JLabel("Payment Date:"));
@@ -1287,23 +1288,23 @@ public class MenuPage extends JFrame {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
-                // Parse integer values from text fields
+
                 Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
                 int employeeId = selectedEmployee.getId();
                 Rental selectedRental=(Rental) rentalComboBox.getSelectedItem();
                 int rentalId = selectedRental.getId();
-                // Parse date values from text field
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 java.util.Date parsedPaymentDate = dateFormat.parse(paymentDateField.getText());
                 Date paymentDate = new Date(parsedPaymentDate.getTime());
 
-                // Parse float value from text field
+
                 float amount = Float.parseFloat(amountField.getText());
 
 
 
 
-                // Create a new Payment object with the values from the text fields
+
                 Payment payment = new Payment(
                         currentPaymentId,
                         receiptNumberField.getText(),
@@ -1314,7 +1315,7 @@ public class MenuPage extends JFrame {
                         rentalId
                 );
 
-                // Call the addEditPayment method from DbUtils
+
                 boolean success = DbUtils.addEditPayment(payment);
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Payment saved successfully.");
@@ -1336,7 +1337,7 @@ public class MenuPage extends JFrame {
 
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
-            // Clear all fields
+
             receiptNumberField.setText("");
             paymentDateField.setText("");
             amountField.setText("");
@@ -1355,14 +1356,14 @@ public class MenuPage extends JFrame {
         panel.add(addPaymentEditArea, BorderLayout.SOUTH);
         addPaymentEditArea.setVisible(false);
 
-        // Add New Entry Button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addNewPaymentButton = new JButton("Add Payment");
         buttonPanel.add(addNewPaymentButton);
         JButton deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
 
-        // Add buttons to the right-aligned panel
+
         buttonPanel.add(addNewPaymentButton);
         buttonPanel.add(deleteButton);
         addNewPaymentButton.addActionListener(e -> {
@@ -1404,7 +1405,7 @@ public class MenuPage extends JFrame {
             }
         });
 
-        // Add a selection listener to the table to enable the Delete button when a row is selected
+
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 deleteButton.setEnabled(table.getSelectedRow() != -1);
@@ -1520,7 +1521,7 @@ public class MenuPage extends JFrame {
             for (Rental rental : rentalList) {
                 if (rental.getId() == payment.getRentalId()) {
                     rentalInfo = rental.toString();
-                    break; // Stop searching once you've found the matching Rental
+                    break;
                 }}
             model.addRow(new Object[]{
                     payment.getReceiptNumber(),
@@ -1542,7 +1543,7 @@ public class MenuPage extends JFrame {
         invoiceModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // This will make none of the cells editable directly by double-clicking
+
                 return false;
             }
         };
@@ -1565,10 +1566,10 @@ public class MenuPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
-        // Add/Edit Area
+
         JPanel addInvoiceEditArea = new JPanel(new GridLayout(0, 2));
 
-        // Add fields for Invoice attributes
+
         JTextField supplierNameField = new JTextField();
         JTextField serviceField = new JTextField();
         JXDatePicker datePicker = new JXDatePicker();
@@ -1576,7 +1577,7 @@ public class MenuPage extends JFrame {
         JTextField amountField = new JTextField();
         JComboBox<Employee> employeeComboBox = new JComboBox<>();
 
-        // Adding labels and text fields to the panel
+
         addInvoiceEditArea.add(new JLabel("Supplier Name:"));
         addInvoiceEditArea.add(supplierNameField);
         addInvoiceEditArea.add(new JLabel("Service:"));
@@ -1591,23 +1592,23 @@ public class MenuPage extends JFrame {
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             try {
-                // Parse integer value from text field
 
 
-                // Parse date value from text field
+
+
 
                 java.util.Date utilDate = datePicker.getDate();
                 java.sql.Date selectedDate = new java.sql.Date(utilDate.getTime());
 
 
-                // Parse float value from text field
+
                 float amount = Float.parseFloat(amountField.getText());
 
-                // Get the selected employee
+
                 Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
                 int employeeId = selectedEmployee.getId();
 
-                // Create a new Invoice object with the values from the text fields
+
                 Invoice invoice = new Invoice(
                         currentInvoiceId,
                         supplierNameField.getText(),
@@ -1617,7 +1618,7 @@ public class MenuPage extends JFrame {
                         employeeId
                 );
 
-                // Call the addEditInvoice method from DbUtils
+
                 boolean success = DbUtils.addEditInvoice(invoice);
                 if (success) {
                     JOptionPane.showMessageDialog(panel, "Invoice saved successfully.");
@@ -1652,14 +1653,14 @@ public class MenuPage extends JFrame {
         panel.add(addInvoiceEditArea, BorderLayout.SOUTH);
         addInvoiceEditArea.setVisible(false);
 
-        // Add New Entry Button
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton addNewInvoiceButton = new JButton("Add Invoice");
         buttonPanel.add(addNewInvoiceButton);
         JButton deleteButton = new JButton("Delete");
         deleteButton.setEnabled(false);
 
-        // Add buttons to the right-aligned panel
+
         buttonPanel.add(addNewInvoiceButton);
         buttonPanel.add(deleteButton);
         addNewInvoiceButton.addActionListener(e -> {
@@ -1694,7 +1695,7 @@ public class MenuPage extends JFrame {
             }
         });
 
-        // Add a selection listener to the table to enable the Delete button when a row is selected
+
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 deleteButton.setEnabled(table.getSelectedRow() != -1);
@@ -1722,7 +1723,7 @@ public class MenuPage extends JFrame {
                             String dateStr = invoiceModel.getValueAt(row, 2).toString();
                             java.sql.Date sqlDate = java.sql.Date.valueOf(dateStr);
 
-                            // Set the date in the JXDatePicker
+
                             datePicker.setDate(sqlDate);
 
                             amountField.setText(invoiceModel.getValueAt(row, 3).toString());
@@ -1804,7 +1805,5 @@ public class MenuPage extends JFrame {
             });
         }
     }
-
-
 
 }

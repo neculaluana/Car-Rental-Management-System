@@ -20,7 +20,6 @@ public class Invoice {
     public int getId() {
         return Id;
     }
-
     public void setId(int id) {
         Id = id;
     }
@@ -28,7 +27,6 @@ public class Invoice {
     public String getSupplierName() {
         return SupplierName;
     }
-
     public void setSupplierName(String supplierName) {
         SupplierName = supplierName;
     }
@@ -36,7 +34,6 @@ public class Invoice {
     public String getService() {
         return Service;
     }
-
     public void setService(String service) {
         Service = service;
     }
@@ -44,7 +41,6 @@ public class Invoice {
     public java.sql.Date getDate() {
         return Date;
     }
-
     public void setDate(java.sql.Date date) {
         Date = date;
     }
@@ -52,7 +48,6 @@ public class Invoice {
     public float getAmount() {
         return Amount;
     }
-
     public void setAmount(float amount) {
         Amount = amount;
     }
@@ -60,7 +55,6 @@ public class Invoice {
     public int getEmployeeId() {
         return EmployeeId;
     }
-
     public void setEmployeeId(int employeeId) {
         EmployeeId = employeeId;
     }
