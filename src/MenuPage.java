@@ -374,11 +374,14 @@ public class MenuPage extends JFrame {
         JTextField addressField = new JTextField();
         JTextField emailField = new JTextField();
         JTextField phoneNumberField = new JTextField();
-        JTextField birthdateField = new JTextField();
+        JXDatePicker birthDatePicker = new JXDatePicker();
+        birthDatePicker.setFormats("yyyy-MM-dd");
         JTextField originCountryField = new JTextField();
         JTextField driverLicenseNumberField = new JTextField();
-        JTextField issueDateField = new JTextField();
-        JTextField expirationDateField = new JTextField();
+        JXDatePicker issueDatePicker = new JXDatePicker();
+        issueDatePicker.setFormats("yyyy-MM-dd");
+        JXDatePicker expirationDatePicker = new JXDatePicker();
+        expirationDatePicker.setFormats("yyyy-MM-dd");
         JTextField carCategoriesField = new JTextField();
 
         // Adding labels and text fields to the panel
@@ -393,15 +396,15 @@ public class MenuPage extends JFrame {
         addClientEditArea.add(new JLabel("Phone Number:"));
         addClientEditArea.add(phoneNumberField);
         addClientEditArea.add(new JLabel("Birthdate:"));
-        addClientEditArea.add(birthdateField);
+        addClientEditArea.add(birthDatePicker);
         addClientEditArea.add(new JLabel("Origin Country:"));
         addClientEditArea.add(originCountryField);
         addClientEditArea.add(new JLabel("Driver License Number:"));
         addClientEditArea.add(driverLicenseNumberField);
         addClientEditArea.add(new JLabel("Issue Date:"));
-        addClientEditArea.add(issueDateField);
+        addClientEditArea.add(issueDatePicker);
         addClientEditArea.add(new JLabel("Expiration Date:"));
-        addClientEditArea.add(expirationDateField);
+        addClientEditArea.add(expirationDatePicker);
         addClientEditArea.add(new JLabel("Car Categories:"));
         addClientEditArea.add(carCategoriesField);
 
@@ -409,10 +412,12 @@ public class MenuPage extends JFrame {
         saveButton.addActionListener(e -> {
             try {
                 // Parse Date values from text fields
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date birthdate = new Date(sdf.parse(birthdateField.getText()).getTime());
-                Date issueDate = new Date(sdf.parse(issueDateField.getText()).getTime());
-                Date expirationDate = new Date(sdf.parse(expirationDateField.getText()).getTime());
+                java.util.Date utilBirthDate = birthDatePicker.getDate();
+                java.sql.Date birthDate = new java.sql.Date(utilBirthDate.getTime());
+                java.util.Date utilIssueDate = issueDatePicker.getDate();
+                java.sql.Date issueDate = new java.sql.Date(utilIssueDate.getTime());
+                java.util.Date utilExpirationDate = expirationDatePicker.getDate();
+                java.sql.Date expirationDate = new java.sql.Date(utilExpirationDate.getTime());
 
                 // Create a new Client object with the values from the text fields
                 Client client = new Client(
@@ -422,7 +427,7 @@ public class MenuPage extends JFrame {
                         addressField.getText(),
                         emailField.getText(),
                         phoneNumberField.getText(),
-                        birthdate,
+                        birthDate,
                         originCountryField.getText(),
                         driverLicenseNumberField.getText(),
                         issueDate,
@@ -444,8 +449,6 @@ public class MenuPage extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save client.");
                 }
-            } catch (ParseException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid date format in one of the fields (yyyy-MM-dd).");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
             }
@@ -455,8 +458,8 @@ public class MenuPage extends JFrame {
         clearButton.addActionListener(e -> {
             // Clear all fields
             clearClientAddEditFields(cnpField, nameField, addressField, emailField, phoneNumberField,
-                    birthdateField, originCountryField, driverLicenseNumberField, issueDateField,
-                    expirationDateField, carCategoriesField);
+                    birthDatePicker, originCountryField, driverLicenseNumberField, issueDatePicker,
+                    expirationDatePicker, carCategoriesField);
         });
 
         addClientEditArea.add(saveButton);
@@ -477,8 +480,8 @@ public class MenuPage extends JFrame {
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
             clearClientAddEditFields(cnpField, nameField, addressField, emailField, phoneNumberField,
-                    birthdateField, originCountryField, driverLicenseNumberField, issueDateField,
-                    expirationDateField, carCategoriesField);
+                    birthDatePicker, originCountryField, driverLicenseNumberField, issueDatePicker,
+                    expirationDatePicker, carCategoriesField);
             addClientEditArea.setVisible(true);
             currentClientId=-1;
         });
@@ -532,11 +535,17 @@ public class MenuPage extends JFrame {
                         addressField.setText(clientModel.getValueAt(rowIndex, 2).toString());
                         emailField.setText(clientModel.getValueAt(rowIndex, 3).toString());
                         phoneNumberField.setText(clientModel.getValueAt(rowIndex, 4).toString());
-                        birthdateField.setText(clientModel.getValueAt(rowIndex, 5).toString());
+                        String birthDateStr = clientModel.getValueAt(row, 5).toString();
+                        java.sql.Date birthDate = java.sql.Date.valueOf(birthDateStr);
+                        birthDatePicker.setDate(birthDate);
                         originCountryField.setText(clientModel.getValueAt(rowIndex, 6).toString());
                         driverLicenseNumberField.setText(clientModel.getValueAt(rowIndex, 7).toString());
-                        issueDateField.setText(clientModel.getValueAt(rowIndex, 8).toString());
-                        expirationDateField.setText(clientModel.getValueAt(rowIndex, 9).toString());
+                        String issueDateStr = clientModel.getValueAt(row, 8).toString();
+                        java.sql.Date issueDate = java.sql.Date.valueOf(issueDateStr);
+                        issueDatePicker.setDate(issueDate);
+                        String expirationDateStr = clientModel.getValueAt(row, 9).toString();
+                        java.sql.Date expirationDate = java.sql.Date.valueOf(expirationDateStr);
+                        expirationDatePicker.setDate(expirationDate);
                         carCategoriesField.setText(clientModel.getValueAt(rowIndex, 10).toString());
                         addClientEditArea.setVisible(true);
                         currentClientId=selectedClient.getId();
@@ -557,8 +566,8 @@ public class MenuPage extends JFrame {
 
         clearButton.addActionListener(e -> {
             clearClientAddEditFields(cnpField, nameField, addressField, emailField, phoneNumberField,
-                    birthdateField, originCountryField, driverLicenseNumberField, issueDateField,
-                    expirationDateField, carCategoriesField);
+                    birthDatePicker, originCountryField, driverLicenseNumberField, issueDatePicker,
+                    expirationDatePicker, carCategoriesField);
             addClientEditArea.setVisible(false);
             table.clearSelection();
         });
@@ -569,17 +578,17 @@ public class MenuPage extends JFrame {
 
         return panel;
     }
-    private void clearClientAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,JTextField emailField, JTextField phoneNumberField, JTextField birthdateField,JTextField originCountryField, JTextField driverLicenseNumberField,JTextField issueDateField, JTextField expirationDateField,JTextField carCategoriesField) {
+    private void clearClientAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,JTextField emailField, JTextField phoneNumberField, JXDatePicker birthdatePicker,JTextField originCountryField, JTextField driverLicenseNumberField,JXDatePicker issueDatePicker, JXDatePicker expirationDatePicker,JTextField carCategoriesField) {
         cnpField.setText("");
         nameField.setText("");
         addressField.setText("");
         emailField.setText("");
         phoneNumberField.setText("");
-        birthdateField.setText("");
+        birthdatePicker.setDate(null);
         originCountryField.setText("");
         driverLicenseNumberField.setText("");
-        issueDateField.setText("");
-        expirationDateField.setText("");
+        issueDatePicker.setDate(null);
+        expirationDatePicker.setDate(null);
         carCategoriesField.setText("");
     }
     private void refreshClientTable(DefaultTableModel model) {
@@ -593,7 +602,6 @@ public class MenuPage extends JFrame {
         List<Client> clients = DbUtils.getAllClients();
         for (Client client : clients) {
             model.addRow(new Object[]{
-                    client.getId(),
                     client.getCNP(),
                     client.getName(),
                     client.getAddress(),
@@ -649,8 +657,10 @@ public class MenuPage extends JFrame {
         JTextField cnpField = new JTextField();
         JTextField nameField = new JTextField();
         JTextField addressField = new JTextField();
-        JTextField birthdateField = new JTextField();
-        JTextField employmentDateField = new JTextField();
+        JXDatePicker birthDatePicker = new JXDatePicker();
+        birthDatePicker.setFormats("yyyy-MM-dd");
+        JXDatePicker employmentDatePicker = new JXDatePicker();
+        employmentDatePicker.setFormats("yyyy-MM-dd");
         JTextField positionField = new JTextField();
 
         // Adding labels and text fields to the panel
@@ -661,9 +671,9 @@ public class MenuPage extends JFrame {
         addEmployeeEditArea.add(new JLabel("Address:"));
         addEmployeeEditArea.add(addressField);
         addEmployeeEditArea.add(new JLabel("Birthdate:"));
-        addEmployeeEditArea.add(birthdateField);
+        addEmployeeEditArea.add(birthDatePicker);
         addEmployeeEditArea.add(new JLabel("Employment Date:"));
-        addEmployeeEditArea.add(employmentDateField);
+        addEmployeeEditArea.add(employmentDatePicker);
         addEmployeeEditArea.add(new JLabel("Position:"));
         addEmployeeEditArea.add(positionField);
 
@@ -671,9 +681,10 @@ public class MenuPage extends JFrame {
         saveButton.addActionListener(e -> {
             try {
                 // Parse Date value from text field
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date birthdate = new Date(sdf.parse(birthdateField.getText()).getTime());
-                Date employmentDate = new Date(sdf.parse(employmentDateField.getText()).getTime());
+                java.util.Date utilBirthDate = birthDatePicker.getDate();
+                java.sql.Date birthDate = new java.sql.Date(utilBirthDate.getTime());
+                java.util.Date utilEmployementDate = employmentDatePicker.getDate();
+                java.sql.Date employmentDate = new java.sql.Date(utilEmployementDate.getTime());
 
                 // Create a new Employee object with the values from the text fields
                 Employee employee = new Employee(
@@ -681,7 +692,7 @@ public class MenuPage extends JFrame {
                         cnpField.getText(),
                         nameField.getText(),
                         addressField.getText(),
-                        birthdate,
+                        birthDate,
                         employmentDate,
                         positionField.getText()
                 );
@@ -701,9 +712,7 @@ public class MenuPage extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save employee.");
                 }
-            } catch (ParseException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid date format in one of the fields (yyyy-MM-dd).");
-            } catch (Exception ex) {
+            }  catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
             }
         });
@@ -711,8 +720,8 @@ public class MenuPage extends JFrame {
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
             // Clear all fields
-            clearEmployeeAddEditFields(cnpField, nameField, addressField, birthdateField,
-                    employmentDateField, positionField);
+            clearEmployeeAddEditFields(cnpField, nameField, addressField, birthDatePicker,
+                    employmentDatePicker, positionField);
         });
 
         addEmployeeEditArea.add(saveButton);
@@ -732,8 +741,8 @@ public class MenuPage extends JFrame {
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
-            clearEmployeeAddEditFields(cnpField, nameField, addressField, birthdateField,
-                    employmentDateField, positionField);
+            clearEmployeeAddEditFields(cnpField, nameField, addressField, birthDatePicker,
+                    employmentDatePicker, positionField);
             addEmployeeEditArea.setVisible(true);
             currentEmployeeId = -1;
         });
@@ -784,8 +793,12 @@ public class MenuPage extends JFrame {
                             cnpField.setText(employeeModel.getValueAt(rowIndex, 0).toString());
                             nameField.setText(employeeModel.getValueAt(rowIndex, 1).toString());
                             addressField.setText(employeeModel.getValueAt(rowIndex, 2).toString());
-                            birthdateField.setText(employeeModel.getValueAt(rowIndex, 3).toString());
-                            employmentDateField.setText(employeeModel.getValueAt(rowIndex, 4).toString());
+                            String birthDateStr = employeeModel.getValueAt(row, 3).toString();
+                            java.sql.Date birthDate = java.sql.Date.valueOf(birthDateStr);
+                            birthDatePicker.setDate(birthDate);
+                            String employmentDateStr = employeeModel.getValueAt(row, 4).toString();
+                            java.sql.Date employmentDate = java.sql.Date.valueOf(employmentDateStr);
+                            employmentDatePicker.setDate(employmentDate);
                             positionField.setText(employeeModel.getValueAt(rowIndex, 5).toString());
                             addEmployeeEditArea.setVisible(true);
                             currentEmployeeId = selectedEmployee.getId();
@@ -813,8 +826,8 @@ public class MenuPage extends JFrame {
             }
         });
         clearButton.addActionListener(e -> {
-            clearEmployeeAddEditFields(cnpField, nameField, addressField, birthdateField,
-                    employmentDateField, positionField);
+            clearEmployeeAddEditFields(cnpField, nameField, addressField, birthDatePicker,
+                    employmentDatePicker, positionField);
             addEmployeeEditArea.setVisible(false);
             table.clearSelection();
         });
@@ -825,12 +838,12 @@ public class MenuPage extends JFrame {
 
         return panel;
     }
-    private void clearEmployeeAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,JTextField birthdateField, JTextField employmentDateField,JTextField positionField) {
+    private void clearEmployeeAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,JXDatePicker birthdatePicker, JXDatePicker employmentDatePicker,JTextField positionField) {
         cnpField.setText("");
         nameField.setText("");
         addressField.setText("");
-        birthdateField.setText("");
-        employmentDateField.setText("");
+        birthdatePicker.setDate(null);
+        employmentDatePicker.setDate(null);
         positionField.setText("");
     }
     private void refreshEmployeeTable(DefaultTableModel model) {
