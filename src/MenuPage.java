@@ -60,7 +60,7 @@ public class MenuPage extends JFrame {
     private JPanel createCarsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
-                "License Plate", "Brand", "Model", "Chassis Series", "Seats", "Fuel Type", "Year", "Color", "Availability", "Daily Rate"
+                "License Plate", "Brand", "Model", "Chassis Series", "Seats", "Fuel Type", "Year", "Color", "Daily Rate"
         };
         carModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -80,7 +80,6 @@ public class MenuPage extends JFrame {
                     car.getFuelType(),
                     car.getManufactureYear(),
                     car.getColor(),
-                    car.getAvailability() ? "Available" : "Not Available",
                     car.getDailyRate()
             });
         }
@@ -102,7 +101,6 @@ public class MenuPage extends JFrame {
         JTextField fuelTypeField = new JTextField();
         JTextField manufactureYearField = new JTextField();
         JTextField colorField = new JTextField();
-        JCheckBox availabilityCheckBox = new JCheckBox("Available");
         JTextField dailyRateField = new JTextField();
 
         // Adding labels and text fields to the panel
@@ -122,8 +120,6 @@ public class MenuPage extends JFrame {
         addCarEditArea.add(manufactureYearField);
         addCarEditArea.add(new JLabel("Color:"));
         addCarEditArea.add(colorField);
-        addCarEditArea.add(new JLabel("Availability:"));
-        addCarEditArea.add(availabilityCheckBox);
         addCarEditArea.add(new JLabel("Daily Rate:"));
         addCarEditArea.add(dailyRateField);
 
@@ -146,7 +142,6 @@ public class MenuPage extends JFrame {
                         fuelTypeField.getText(),
                         manufactureYear,
                         colorField.getText(),
-                        availabilityCheckBox.isSelected(),
                         dailyRate
                 );
 
@@ -182,7 +177,6 @@ public class MenuPage extends JFrame {
             fuelTypeField.setText("");
             manufactureYearField.setText("");
             colorField.setText("");
-            availabilityCheckBox.setSelected(false);
             dailyRateField.setText("");
         });
 
@@ -203,7 +197,7 @@ public class MenuPage extends JFrame {
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
-            clearCarAddEditFields(licencePlateField, brandField, modelField, chassisSeriesField, seatsNumberField, fuelTypeField, manufactureYearField, colorField, availabilityCheckBox, dailyRateField);
+            clearCarAddEditFields(licencePlateField, brandField, modelField, chassisSeriesField, seatsNumberField, fuelTypeField, manufactureYearField, colorField, dailyRateField);
             addCarEditArea.setVisible(true);
             currentCarId=-1;
         });
@@ -257,7 +251,6 @@ public class MenuPage extends JFrame {
                             fuelTypeField.setText(carModel.getValueAt(row, 5).toString());
                             manufactureYearField.setText(carModel.getValueAt(row, 6).toString());
                             colorField.setText(carModel.getValueAt(row, 7).toString());
-                            availabilityCheckBox.setSelected("Available".equals(carModel.getValueAt(row, 8).toString()));
                             dailyRateField.setText(carModel.getValueAt(row, 9).toString());
                             addCarEditArea.setVisible(true);
                         }
@@ -285,7 +278,7 @@ public class MenuPage extends JFrame {
             }
         });
         clearButton.addActionListener(e -> {
-            clearCarAddEditFields(licencePlateField, brandField, modelField, chassisSeriesField, seatsNumberField, fuelTypeField, manufactureYearField, colorField, availabilityCheckBox, dailyRateField);
+            clearCarAddEditFields(licencePlateField, brandField, modelField, chassisSeriesField, seatsNumberField, fuelTypeField, manufactureYearField, colorField, dailyRateField);
             addCarEditArea.setVisible(false);
             table.clearSelection();
         });
@@ -294,7 +287,7 @@ public class MenuPage extends JFrame {
         panel.add(addCarEditArea, BorderLayout.SOUTH);
         return panel;
     }
-    private void clearCarAddEditFields(JTextField licencePlateField, JTextField brandField, JTextField modelField, JTextField chassisSeriesField, JTextField seatsNumberField, JTextField fuelTypeField, JTextField manufactureYearField, JTextField colorField, JCheckBox availabilityCheckBox, JTextField dailyRateField) {
+    private void clearCarAddEditFields(JTextField licencePlateField, JTextField brandField, JTextField modelField, JTextField chassisSeriesField, JTextField seatsNumberField, JTextField fuelTypeField, JTextField manufactureYearField, JTextField colorField, JTextField dailyRateField) {
         licencePlateField.setText("");
         brandField.setText("");
         modelField.setText("");
@@ -303,7 +296,6 @@ public class MenuPage extends JFrame {
         fuelTypeField.setText("");
         manufactureYearField.setText("");
         colorField.setText("");
-        availabilityCheckBox.setSelected(false);
         dailyRateField.setText("");
     }
     private void refreshCarTable(DefaultTableModel model) {
@@ -320,7 +312,6 @@ public class MenuPage extends JFrame {
                     car.getFuelType(),
                     car.getManufactureYear(),
                     car.getColor(),
-                    car.getAvailability() ? "Available" : "Not Available",
                     car.getDailyRate()
             });
         }
@@ -905,8 +896,10 @@ public class MenuPage extends JFrame {
         JPanel addRentalEditArea = new JPanel(new GridLayout(0, 2));
 
         // Add fields for Rental attributes
-        JTextField startDateField = new JTextField();
-        JTextField endDateField = new JTextField();
+        JXDatePicker startDatePicker = new JXDatePicker();
+        startDatePicker.setFormats("yyyy-MM-dd");
+        JXDatePicker endDatePicker = new JXDatePicker();
+        endDatePicker.setFormats("yyyy-MM-dd");
         JComboBox<Car> carComboBox = new JComboBox<>();
         JComboBox<Client> clientComboBox = new JComboBox<>();
         JComboBox<Employee> employeeComboBox = new JComboBox<>();
@@ -914,9 +907,9 @@ public class MenuPage extends JFrame {
 
         // Adding labels and text fields to the panel
         addRentalEditArea.add(new JLabel("Start Date:"));
-        addRentalEditArea.add(startDateField);
+        addRentalEditArea.add(startDatePicker);
         addRentalEditArea.add(new JLabel("End Date:"));
-        addRentalEditArea.add(endDateField);
+        addRentalEditArea.add(endDatePicker);
         addRentalEditArea.add(new JLabel("Car:"));
         addRentalEditArea.add(carComboBox);
         addRentalEditArea.add(new JLabel("Client:"));
@@ -938,11 +931,11 @@ public class MenuPage extends JFrame {
                 int employeeId = selectedEmployee.getId();
 
                 // Parse date values from text fields
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                java.util.Date parsedStartDate = dateFormat.parse(startDateField.getText());
-                java.util.Date parsedEndDate = dateFormat.parse(endDateField.getText());
-                Date startDate = new Date(parsedStartDate.getTime());
-                Date endDate = new Date(parsedEndDate.getTime());
+                java.util.Date utilStartDate = startDatePicker.getDate();
+                java.sql.Date startDate = new java.sql.Date(utilStartDate.getTime());
+                java.util.Date utilEndDate = endDatePicker.getDate();
+                java.sql.Date endDate = new java.sql.Date(utilEndDate.getTime());
+
 
                 // Create a new Rental object with the values from the text fields
                 Rental rental = new Rental(
@@ -968,8 +961,6 @@ public class MenuPage extends JFrame {
                 }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(panel, "Invalid number format in one of the fields.");
-            } catch (ParseException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid date format in Start Date or End Date.");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
             }
@@ -978,8 +969,8 @@ public class MenuPage extends JFrame {
         JButton clearButton = new JButton("Clear/Cancel");
         clearButton.addActionListener(e -> {
             // Clear all fields
-            startDateField.setText("");
-            endDateField.setText("");
+            startDatePicker.setDate(null);
+            endDatePicker.setDate(null);
             if (carComboBox.getItemCount() > 0) {
                 carComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
             }
@@ -1009,7 +1000,7 @@ public class MenuPage extends JFrame {
         buttonPanel.add(addNewEntryButton);
         buttonPanel.add(deleteButton);
         addNewEntryButton.addActionListener(e -> {
-            clearRentalAddEditFields(startDateField, endDateField, carComboBox, clientComboBox, employeeComboBox);
+            clearRentalAddEditFields(startDatePicker, endDatePicker, carComboBox, clientComboBox, employeeComboBox);
             carComboBox.removeAllItems();
             clientComboBox.removeAllItems();
             employeeComboBox.removeAllItems();
@@ -1091,8 +1082,12 @@ public class MenuPage extends JFrame {
                         if (e.getClickCount() == 2) {
                             Rental selectedRental = rentalList.get(rowIndex);
 
-                            startDateField.setText(rentalModel.getValueAt(row, 0).toString());
-                            endDateField.setText(rentalModel.getValueAt(row, 1).toString());
+                            String startDateStr = rentalModel.getValueAt(row, 0).toString();
+                            java.sql.Date startDate = java.sql.Date.valueOf(startDateStr);
+                            startDatePicker.setDate(startDate);
+                            String endDateStr = rentalModel.getValueAt(row, 1).toString();
+                            java.sql.Date endDate = java.sql.Date.valueOf(endDateStr);
+                            endDatePicker.setDate(endDate);
                             carComboBox.removeAllItems();
                             clientComboBox.removeAllItems();
                             employeeComboBox.removeAllItems();
@@ -1183,7 +1178,7 @@ public class MenuPage extends JFrame {
         });
 
         clearButton.addActionListener(e -> {
-            clearRentalAddEditFields(startDateField, endDateField, carComboBox, clientComboBox, employeeComboBox);
+            clearRentalAddEditFields(startDatePicker, endDatePicker, carComboBox, clientComboBox, employeeComboBox);
             addRentalEditArea.setVisible(false);
             table.clearSelection();
         });
@@ -1193,10 +1188,10 @@ public class MenuPage extends JFrame {
         panel.add(addRentalEditArea, BorderLayout.SOUTH);
         return panel;
     }
-    private void clearRentalAddEditFields(JTextField startDateField, JTextField endDateField, JComboBox<Car> carComboBox,JComboBox<Client> clientComboBox, JComboBox<Employee> employeeComboBox) {
+    private void clearRentalAddEditFields(JXDatePicker startdatePicker, JXDatePicker enddatePicker, JComboBox<Car> carComboBox,JComboBox<Client> clientComboBox, JComboBox<Employee> employeeComboBox) {
 
-        startDateField.setText("");
-        endDateField.setText("");
+        startdatePicker.setDate(null);
+        enddatePicker.setDate(null);
         if (carComboBox.getItemCount() > 0) {
             carComboBox.setSelectedIndex(0); // Assumes the first item is a placeholder or the first employee
         }

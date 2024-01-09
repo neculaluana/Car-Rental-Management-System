@@ -61,7 +61,6 @@ public class DbUtils {
                         ,resultSet.getString("FuelType")
                         ,resultSet.getInt("ManufactureYear")
                         ,resultSet.getString("Color")
-                        ,resultSet.getBoolean("Availability")
                         ,resultSet.getFloat("DailyRate"));
                 carList.add(car);
             }
@@ -288,7 +287,7 @@ public class DbUtils {
         return false;
     }
     public static boolean addEditCar(Car car) {
-        try (CallableStatement statement = conn.prepareCall("{CALL spAddEditCar(?,?,?,?,?,?,?,?,?,?,?)}")) {
+        try (CallableStatement statement = conn.prepareCall("{CALL spAddEditCar(?,?,?,?,?,?,?,?,?,?)}")) {
             // Using column names instead of indices
             statement.setObject("CarId", car.getId()); // Replace "CarID" with the actual parameter name in your stored procedure
             statement.setObject("LicensePlate", car.getLicencePlate());
@@ -299,7 +298,6 @@ public class DbUtils {
             statement.setObject("FuelType", car.getFuelType());
             statement.setObject("ManufactureYear", car.getManufactureYear());
             statement.setObject("Color", car.getColor());
-            statement.setObject("Availability", car.getAvailability());
             statement.setObject("DailyRate", car.getDailyRate());
 
             int affectedRows = statement.executeUpdate();

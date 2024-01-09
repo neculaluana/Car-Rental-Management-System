@@ -8,11 +8,9 @@ public class Car {
     protected String FuelType;
     protected int ManufactureYear;
     protected String Color;
-    protected boolean Availability;
     protected float DailyRate;
 
-
-    public Car(int id, String licencePlate, String brand, String model, String chassisSeries, int seatsNumber, String fuelType, int manufactureYear, String color, boolean availability, float dailyRate) {
+    public Car(int id, String licencePlate, String brand, String model, String chassisSeries, int seatsNumber, String fuelType, int manufactureYear, String color, float dailyRate) {
         Id = id;
         LicencePlate = licencePlate;
         Brand = brand;
@@ -22,7 +20,6 @@ public class Car {
         FuelType = fuelType;
         ManufactureYear = manufactureYear;
         Color = color;
-        Availability = availability;
         DailyRate = dailyRate;
     }
 
@@ -98,14 +95,6 @@ public class Car {
         Color = color;
     }
 
-    public boolean getAvailability() {
-        return Availability;
-    }
-
-    public void setAvailability(boolean availability) {
-        Availability = availability;
-    }
-
     public float getDailyRate() {
         return DailyRate;
     }
@@ -113,7 +102,6 @@ public class Car {
     public void setDailyRate(float dailyRate) {
         DailyRate = dailyRate;
     }
-
     @Override
     public String toString() {
         return this.Brand+", "+this.Model+", "+this.LicencePlate;
