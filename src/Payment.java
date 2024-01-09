@@ -6,17 +6,15 @@ public class Payment {
     protected Date PaymentDate;
     protected float Amount;
     protected String Service;
-    protected int ClientId;
     protected int EmployeeId;
     protected int RentalId;
 
-    public Payment(int id, String receiptNumber, Date paymentDate, float amount, String service, int clientId, int employeeId, int rentalId) {
+    public Payment(int id, String receiptNumber, Date paymentDate, float amount, String service, int employeeId, int rentalId) {
         Id = id;
         ReceiptNumber = receiptNumber;
         PaymentDate = paymentDate;
         Amount = amount;
         Service = service;
-        ClientId = clientId;
         EmployeeId = employeeId;
         RentalId = rentalId;
     }
@@ -61,14 +59,6 @@ public class Payment {
         Service = service;
     }
 
-    public int getClientId() {
-        return ClientId;
-    }
-
-    public void setClientId(int clientId) {
-        ClientId = clientId;
-    }
-
     public int getEmployeeId() {
         return EmployeeId;
     }
@@ -93,7 +83,6 @@ public class Payment {
                 ", PaymentDate=" + PaymentDate +
                 ", Amount=" + Amount +
                 ", Service='" + Service + '\'' +
-                ", ClientId=" + ClientId +
                 ", EmployeeId=" + EmployeeId +
                 ", RentalId=" + RentalId +
                 '}';

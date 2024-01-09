@@ -35,48 +35,6 @@ public class DbUtils {
             {
                 return null;
             }
-
-//            List<Car> carList=getAllCars();
-//            for (Car car:carList)
-//            {
-//                System.out.println(car);
-//            }
-//            System.out.println("-------------------------------------------------------------------------------------------------");
-//            List<Client> clientList=getAllClients();
-//            for (Client client:clientList)
-//            {
-//                System.out.println(client);
-//            }
-//            System.out.println("-------------------------------------------------------------------------------------------------");
-//            List<Employee> employeeList=getAllEmployees();
-//            for (Employee employee:employeeList)
-//            {
-//                System.out.println(employee);
-//            }
-//            System.out.println("-------------------------------------------------------------------------------------------------");
-//            List<Rental> rentalList=getAllRentals();
-//            for (Rental rental:rentalList)
-//            {
-//                System.out.println(rental);
-//            }
-//            System.out.println("-------------------------------------------------------------------------------------------------");
-//            List<Payment> paymentList=getAllPayments();
-//            for (Payment payment:paymentList)
-//            {
-//                System.out.println(payment);
-//            }
-//            System.out.println("-------------------------------------------------------------------------------------------------");
-//            List<Invoice> invoiceList=getAllInvoices();
-//            for (Invoice invoice:invoiceList)
-//            {
-//                System.out.println(invoice);
-//            }
-//            System.out.println("-------------------------------------------------------------------------------------------------");
-//            List<User> userList=getAllUsers();
-//            for (User user:userList)
-//            {
-//                System.out.println(user);
-//            }
         }
         catch(Exception ex)
         {
@@ -170,7 +128,7 @@ public class DbUtils {
         List<Payment> paymentList = new ArrayList<>();
         try {
             Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery("spPaymentSelectAll");
+            ResultSet resultSet = statement.executeQuery("spPaymentSelectAllActive");
 
             while (resultSet.next()) {
                 Payment payment = new Payment(
@@ -179,7 +137,6 @@ public class DbUtils {
                         resultSet.getDate("PaymentDate"),
                         resultSet.getFloat("Amount"),
                         resultSet.getString("Service"),
-                        resultSet.getInt("ClientId"),
                         resultSet.getInt("EmployeeId"),
                         resultSet.getInt("RentalId")
                 );
@@ -432,6 +389,35 @@ public class DbUtils {
             statement.setObject("CarId", rental.getCarId());
             statement.setObject("ClientId", rental.getClientId());
             statement.setObject("EmployeeId", rental.getEmployeeId());
+
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean deletePayment(int paymentId) {
+        try (PreparedStatement statement = conn.prepareStatement("{CALL spDeletePayment(?)}")) {
+            statement.setInt(1, paymentId);
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean addEditPayment(Payment payment) {
+        try (CallableStatement statement = conn.prepareCall("{CALL spAddEditPayment(?,?,?,?,?,?,?)}")) {
+            statement.setObject("PaymentId", payment.getId()); // Replace "PaymentId" with the actual parameter name in your stored procedure
+            statement.setObject("ReceiptNumber", payment.getReceiptNumber());
+            statement.setObject("PaymentDate", payment.getPaymentDate());
+            statement.setObject("Amount", payment.getAmount());
+            statement.setObject("Service", payment.getService());
+            statement.setObject("EmployeeId", payment.getEmployeeId());
+            statement.setObject("RentalId", payment.getRentalId());
 
             int affectedRows = statement.executeUpdate();
             return affectedRows > 0;

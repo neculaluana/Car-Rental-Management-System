@@ -26,9 +26,8 @@ public class MenuPage extends JFrame {
     List<Client> clientList=new ArrayList<>();
     List<Employee> employeeList=new ArrayList<>();
     List<Rental> rentalList=new ArrayList<>();
-//    List<Payment> paymentList=new ArrayList<>();
+    List<Payment> paymentList=new ArrayList<>();
 //    List<Invoice> invoiceList=new ArrayList<>();
-    DefaultComboBoxModel<String> employeeComboBoxModel = new DefaultComboBoxModel<>();
 
     public MenuPage() {
         setTitle("Car Rental");
@@ -559,11 +558,7 @@ public class MenuPage extends JFrame {
 
         return panel;
     }
-    private void clearClientAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,
-                                          JTextField emailField, JTextField phoneNumberField, JTextField birthdateField,
-                                          JTextField originCountryField, JTextField driverLicenseNumberField,
-                                          JTextField issueDateField, JTextField expirationDateField,
-                                          JTextField carCategoriesField) {
+    private void clearClientAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,JTextField emailField, JTextField phoneNumberField, JTextField birthdateField,JTextField originCountryField, JTextField driverLicenseNumberField,JTextField issueDateField, JTextField expirationDateField,JTextField carCategoriesField) {
         cnpField.setText("");
         nameField.setText("");
         addressField.setText("");
@@ -816,9 +811,7 @@ public class MenuPage extends JFrame {
 
         return panel;
     }
-    private void clearEmployeeAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,
-                                            JTextField birthdateField, JTextField employmentDateField,
-                                            JTextField positionField) {
+    private void clearEmployeeAddEditFields(JTextField cnpField, JTextField nameField, JTextField addressField,JTextField birthdateField, JTextField employmentDateField,JTextField positionField) {
         cnpField.setText("");
         nameField.setText("");
         addressField.setText("");
@@ -826,7 +819,6 @@ public class MenuPage extends JFrame {
         employmentDateField.setText("");
         positionField.setText("");
     }
-
     private void refreshEmployeeTable(DefaultTableModel model) {
         // Clear the existing rows from the table model
         int rowCount = model.getRowCount();
@@ -1210,32 +1202,316 @@ public class MenuPage extends JFrame {
     private JPanel createPaymentsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
-                 "Receipt Number", "Payment Date", "Amount", "Service",
-                "Client", "Employee"
+                "Receipt Number", "Payment Date", "Amount", "Service", "Employee Name", "Rental"
+        };
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // This will make none of the cells editable directly by double-clicking
+                return false;
+            }
         };
 
-        List<Payment> payments = DbUtils.getAllPayments();
-        Object[][] data = new Object[payments.size()][columnNames.length];
-        int i = 0;
-        for (Payment payment : payments) {
-
-            data[i][0] = payment.ReceiptNumber;
-            data[i][1] = payment.PaymentDate.toString();
-            data[i][2] = payment.Amount;
-            data[i][3] = payment.Service;
-            data[i][4] = DbUtils.getClientNameById(payment.ClientId);
-            data[i][5] = DbUtils.getEmployeeNameById(payment.EmployeeId);
-            i++;
+        paymentList = DbUtils.getAllPayments();
+        rentalList=DbUtils.getAllRentals();
+        for (Payment payment : paymentList) {
+            String employeeName = DbUtils.getEmployeeNameById(payment.getEmployeeId());
+            String rentalInfo = "";
+            for (Rental rental : rentalList) {
+                if (rental.getId() == payment.getRentalId()) {
+                    rentalInfo = rental.toString();
+                    break; // Stop searching once you've found the matching Rental
+                }}
+            model.addRow(new Object[]{
+                    payment.getReceiptNumber(),
+                    payment.getPaymentDate(),
+                    payment.getAmount(),
+                    payment.getService(),
+                    employeeName,
+                    rentalInfo,
+            });
         }
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
         JTable table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
+        // Add/Edit Area
+        JPanel addPaymentEditArea = new JPanel(new GridLayout(0, 2));
+
+        // Add fields for Payment attributes
+        JTextField receiptNumberField = new JTextField();
+        JTextField paymentDateField = new JTextField();
+        JTextField amountField = new JTextField();
+        JTextField serviceField = new JTextField();
+        JComboBox<Employee> employeeComboBox = new JComboBox<>();
+        JComboBox<Rental> rentalComboBox = new JComboBox<>();
+
+        // Adding labels and text fields to the panel
+        addPaymentEditArea.add(new JLabel("Receipt Number:"));
+        addPaymentEditArea.add(receiptNumberField);
+        addPaymentEditArea.add(new JLabel("Payment Date:"));
+        addPaymentEditArea.add(paymentDateField);
+        addPaymentEditArea.add(new JLabel("Amount:"));
+        addPaymentEditArea.add(amountField);
+        addPaymentEditArea.add(new JLabel("Service:"));
+        addPaymentEditArea.add(serviceField);
+        addPaymentEditArea.add(new JLabel("Employee:"));
+        addPaymentEditArea.add(employeeComboBox);
+        addPaymentEditArea.add(new JLabel("Rental :"));
+        addPaymentEditArea.add(rentalComboBox);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            try {
+                // Parse integer values from text fields
+                Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
+                int employeeId = selectedEmployee.getId();
+                Rental selectedRental=(Rental) rentalComboBox.getSelectedItem();
+                int rentalId = selectedRental.getId();
+                // Parse date values from text field
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date parsedPaymentDate = dateFormat.parse(paymentDateField.getText());
+                Date paymentDate = new Date(parsedPaymentDate.getTime());
+
+                // Parse float value from text field
+                float amount = Float.parseFloat(amountField.getText());
+
+
+
+
+                // Create a new Payment object with the values from the text fields
+                Payment payment = new Payment(
+                        currentPaymentId,
+                        receiptNumberField.getText(),
+                        paymentDate,
+                        amount,
+                        serviceField.getText(),
+                        employeeId,
+                        rentalId
+                );
+
+                // Call the addEditPayment method from DbUtils
+                boolean success = DbUtils.addEditPayment(payment);
+                if (success) {
+                    JOptionPane.showMessageDialog(panel, "Payment saved successfully.");
+                    List<Payment> newPayments = DbUtils.getAllPayments();
+                    paymentList.clear();
+                    paymentList.addAll(newPayments);
+                    refreshPaymentTable(model);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Failed to save payment.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(panel, "Invalid number format in one of the fields.");
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(panel, "Invalid date format in Payment Date.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        JButton clearButton = new JButton("Clear/Cancel");
+        clearButton.addActionListener(e -> {
+            // Clear all fields
+            receiptNumberField.setText("");
+            paymentDateField.setText("");
+            amountField.setText("");
+            serviceField.setText("");
+            if (employeeComboBox.getItemCount() > 0) {
+                employeeComboBox.setSelectedIndex(0);
+            }
+            if (rentalComboBox.getItemCount() > 0) {
+                rentalComboBox.setSelectedIndex(0);
+            }
+        });
+
+        addPaymentEditArea.add(saveButton);
+        addPaymentEditArea.add(clearButton);
+
+        panel.add(addPaymentEditArea, BorderLayout.SOUTH);
+        addPaymentEditArea.setVisible(false);
+
+        // Add New Entry Button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton addNewPaymentButton = new JButton("Add Payment");
+        buttonPanel.add(addNewPaymentButton);
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setEnabled(false);
+
+        // Add buttons to the right-aligned panel
+        buttonPanel.add(addNewPaymentButton);
+        buttonPanel.add(deleteButton);
+        addNewPaymentButton.addActionListener(e -> {
+            clearPaymentAddEditFields(receiptNumberField, paymentDateField, amountField, serviceField, employeeComboBox, rentalComboBox);
+
+            employeeComboBox.removeAllItems();
+            rentalComboBox.removeAllItems();
+            currentPaymentId = -1;
+
+            List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
+            Collections.sort(sortedEmployeeList, Comparator.comparing(Employee::toString, String.CASE_INSENSITIVE_ORDER));
+            for (Employee employee : sortedEmployeeList) {
+                employeeComboBox.addItem(employee);
+            }
+            List<Rental> sortedRentalList = new ArrayList<>(rentalList);
+            Collections.sort(sortedRentalList, Comparator.comparing(Rental::toString, String.CASE_INSENSITIVE_ORDER));
+            for (Rental rental : sortedRentalList) {
+                rentalComboBox.addItem(rental);
+            }
+            addPaymentEditArea.setVisible(true);
+        });
+        deleteButton.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row != -1 && row < paymentList.size()) {
+                Payment paymentToDelete = paymentList.get(row);
+                int paymentId = paymentToDelete.getId();
+                int choice = JOptionPane.showConfirmDialog(panel, "Are you sure you want to delete this payment?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+                if (choice == JOptionPane.YES_OPTION) {
+                    boolean success = DbUtils.deletePayment(paymentId);
+                    if (success) {
+                        JOptionPane.showMessageDialog(panel, "Payment deleted successfully.");
+                        model.removeRow(row);
+                        paymentList.remove(row);
+                    } else {
+                        JOptionPane.showMessageDialog(panel, "Failed to delete payment.");
+                    }
+                }
+            }
+        });
+
+        // Add a selection listener to the table to enable the Delete button when a row is selected
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                deleteButton.setEnabled(table.getSelectedRow() != -1);
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() > 0) {
+                    int rowIndex = table.rowAtPoint(e.getPoint());
+                    int colIndex = table.columnAtPoint(e.getPoint());
+                    boolean isRowValid = rowIndex >= 0 && rowIndex < table.getRowCount();
+                    boolean isColumnValid = colIndex >= 0 && colIndex < table.getColumnCount();
+                    boolean isCellValid = isRowValid && isColumnValid;
+                    int row = rowIndex;
+
+                    if (isCellValid) {
+                        table.setRowSelectionInterval(row, row);
+                        if (e.getClickCount() == 2) {
+                            Payment selectedPayment = paymentList.get(rowIndex);
+
+                            receiptNumberField.setText(model.getValueAt(row, 0).toString());
+                            paymentDateField.setText(model.getValueAt(row, 1).toString());
+                            amountField.setText(model.getValueAt(row, 2).toString());
+                            serviceField.setText(model.getValueAt(row, 3).toString());
+
+
+                            employeeComboBox.removeAllItems();
+                            rentalComboBox.removeAllItems();
+                            List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
+                            Collections.sort(sortedEmployeeList, Comparator.comparing(Employee::toString, String.CASE_INSENSITIVE_ORDER));
+                            for (Employee employee : sortedEmployeeList) {
+                                employeeComboBox.addItem(employee);
+                            }
+                            List<Rental> sortedRentalList = new ArrayList<>(rentalList);
+                            Collections.sort(sortedRentalList, Comparator.comparing(Rental::toString, String.CASE_INSENSITIVE_ORDER));
+                            for (Rental rental : sortedRentalList) {
+                                rentalComboBox.addItem(rental);
+                            }
+                            int rentalId = selectedPayment.getRentalId();
+                            for (int i = 0; i < rentalComboBox.getItemCount(); i++) {
+                                Rental rental = rentalComboBox.getItemAt(i);
+                                if (rental.getId() == rentalId) {
+                                    rentalComboBox.setSelectedIndex(i);
+                                    break;
+                                }
+                            }
+                            int employeeId = selectedPayment.getEmployeeId();
+                            for (int i = 0; i < employeeComboBox.getItemCount(); i++) {
+                                Employee employee = employeeComboBox.getItemAt(i);
+                                if (employee.getId() == employeeId) {
+                                    employeeComboBox.setSelectedIndex(i);
+                                    break;
+                                }
+                            }
+                            currentPaymentId = selectedPayment.getId();
+                            addPaymentEditArea.setVisible(true);
+                        }
+                    } else {
+                        table.clearSelection();
+                        addPaymentEditArea.setVisible(false);
+                        deleteButton.setEnabled(false);
+                    }
+                } else {
+                    table.clearSelection();
+                    addPaymentEditArea.setVisible(false);
+                    deleteButton.setEnabled(false);
+                }
+            }
+        });
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                boolean rowSelected = (table.getSelectedRow() != -1);
+                deleteButton.setEnabled(rowSelected);
+                if (!rowSelected) {
+                    addPaymentEditArea.setVisible(false);
+                }
+            }
+        });
+
+        clearButton.addActionListener(e -> {
+            clearPaymentAddEditFields(receiptNumberField, paymentDateField, amountField, serviceField, employeeComboBox, rentalComboBox);
+            addPaymentEditArea.setVisible(false);
+            table.clearSelection();
+        });
+
+        panel.add(buttonPanel, BorderLayout.PAGE_START);
         panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(addPaymentEditArea, BorderLayout.SOUTH);
         return panel;
     }
+
+    private void clearPaymentAddEditFields(JTextField receiptNumberField, JTextField paymentDateField, JTextField amountField, JTextField serviceField, JComboBox<Employee> employeeComboBox, JComboBox<Rental> rentalComboBox) {
+        receiptNumberField.setText("");
+        paymentDateField.setText("");
+        amountField.setText("");
+        serviceField.setText("");
+
+        if (employeeComboBox.getItemCount() > 0) {
+            employeeComboBox.setSelectedIndex(0);
+        }
+        if (rentalComboBox.getItemCount() > 0) {
+            rentalComboBox.setSelectedIndex(0);
+        }
+    }
+
+    private void refreshPaymentTable(DefaultTableModel model) {
+        List<Payment> payments = DbUtils.getAllPayments();
+        model.setRowCount(0);
+
+        for (Payment payment : paymentList) {
+            String employeeName = DbUtils.getEmployeeNameById(payment.getEmployeeId());
+            String rentalInfo = "";
+            for (Rental rental : rentalList) {
+                if (rental.getId() == payment.getRentalId()) {
+                    rentalInfo = rental.toString();
+                    break; // Stop searching once you've found the matching Rental
+                }}
+            model.addRow(new Object[]{
+                    payment.getReceiptNumber(),
+                    payment.getPaymentDate(),
+                    payment.getAmount(),
+                    payment.getService(),
+                    employeeName,
+                    rentalInfo,
+            });
+        }
+    }
+
 
     private JPanel createInvoicesPanel() {
         JPanel panel = new JPanel(new BorderLayout());

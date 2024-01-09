@@ -67,13 +67,6 @@ public class Rental {
 
     @Override
     public String toString() {
-        return "Rental{" +
-                "Id=" + Id +
-                ", StartDate=" + StartDate +
-                ", EndDate=" + EndDate +
-                ", CarId=" + CarId +
-                ", ClientId=" + ClientId +
-                ", EmployeeId=" + EmployeeId +
-                '}';
+        return StartDate+", "+DbUtils.getClientNameById(ClientId)+", "+DbUtils.getCarPlateById(CarId);
     }
 }
