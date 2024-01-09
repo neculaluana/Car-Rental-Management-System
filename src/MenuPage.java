@@ -7,7 +7,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.temporal.ChronoUnit;
-
+import org.jdesktop.swingx.JXDatePicker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1548,7 +1548,8 @@ public class MenuPage extends JFrame {
         // Add fields for Invoice attributes
         JTextField supplierNameField = new JTextField();
         JTextField serviceField = new JTextField();
-        JTextField dateField = new JTextField();
+        JXDatePicker datePicker = new JXDatePicker();
+        datePicker.setFormats("yyyy-MM-dd");
         JTextField amountField = new JTextField();
         JComboBox<Employee> employeeComboBox = new JComboBox<>();
 
@@ -1558,7 +1559,7 @@ public class MenuPage extends JFrame {
         addInvoiceEditArea.add(new JLabel("Service:"));
         addInvoiceEditArea.add(serviceField);
         addInvoiceEditArea.add(new JLabel("Date:"));
-        addInvoiceEditArea.add(dateField);
+        addInvoiceEditArea.add(datePicker);
         addInvoiceEditArea.add(new JLabel("Amount:"));
         addInvoiceEditArea.add(amountField);
         addInvoiceEditArea.add(new JLabel("Employee:"));
@@ -1571,9 +1572,10 @@ public class MenuPage extends JFrame {
 
 
                 // Parse date value from text field
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                java.util.Date parsedDate = dateFormat.parse(dateField.getText());
-                Date date = new Date(parsedDate.getTime());
+
+                java.util.Date utilDate = datePicker.getDate();
+                java.sql.Date selectedDate = new java.sql.Date(utilDate.getTime());
+
 
                 // Parse float value from text field
                 float amount = Float.parseFloat(amountField.getText());
@@ -1587,7 +1589,7 @@ public class MenuPage extends JFrame {
                         currentInvoiceId,
                         supplierNameField.getText(),
                         serviceField.getText(),
-                        date,
+                        selectedDate,
                         amount,
                         employeeId
                 );
@@ -1605,9 +1607,7 @@ public class MenuPage extends JFrame {
                 }
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(panel, "Invalid number format in one of the fields.");
-            } catch (ParseException ex) {
-                JOptionPane.showMessageDialog(panel, "Invalid date format in Date.");
-            } catch (Exception ex) {
+            }  catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
             }
         });
@@ -1616,7 +1616,7 @@ public class MenuPage extends JFrame {
         clearButton.addActionListener(e -> {
             supplierNameField.setText("");
             serviceField.setText("");
-            dateField.setText("");
+            datePicker.setDate(null);
             amountField.setText("");
             if (employeeComboBox.getItemCount() > 0) {
                 employeeComboBox.setSelectedIndex(0);
@@ -1640,7 +1640,7 @@ public class MenuPage extends JFrame {
         buttonPanel.add(addNewInvoiceButton);
         buttonPanel.add(deleteButton);
         addNewInvoiceButton.addActionListener(e -> {
-            clearInvoiceAddEditFields(supplierNameField, serviceField, dateField, amountField, employeeComboBox);
+            clearInvoiceAddEditFields(supplierNameField, serviceField, datePicker, amountField, employeeComboBox);
             employeeComboBox.removeAllItems();
             currentInvoiceId = -1;
 
@@ -1696,7 +1696,12 @@ public class MenuPage extends JFrame {
 
                             supplierNameField.setText(model.getValueAt(row, 0).toString());
                             serviceField.setText(model.getValueAt(row, 1).toString());
-                            dateField.setText(model.getValueAt(row, 2).toString());
+                            String dateStr = model.getValueAt(row, 2).toString();
+                            java.sql.Date sqlDate = java.sql.Date.valueOf(dateStr);
+
+                            // Set the date in the JXDatePicker
+                            datePicker.setDate(sqlDate);
+
                             amountField.setText(model.getValueAt(row, 3).toString());
 
                             employeeComboBox.removeAllItems();
@@ -1740,7 +1745,7 @@ public class MenuPage extends JFrame {
         });
 
         clearButton.addActionListener(e -> {
-            clearInvoiceAddEditFields( supplierNameField, serviceField, dateField, amountField, employeeComboBox);
+            clearInvoiceAddEditFields( supplierNameField, serviceField, datePicker, amountField, employeeComboBox);
             addInvoiceEditArea.setVisible(false);
             table.clearSelection();
         });
@@ -1751,11 +1756,11 @@ public class MenuPage extends JFrame {
         return panel;
     }
 
-    private void clearInvoiceAddEditFields(JTextField supplierNameField, JTextField serviceField, JTextField dateField, JTextField amountField, JComboBox<Employee> employeeComboBox) {
+    private void clearInvoiceAddEditFields(JTextField supplierNameField, JTextField serviceField, JXDatePicker datePicker, JTextField amountField, JComboBox<Employee> employeeComboBox) {
 
         supplierNameField.setText("");
         serviceField.setText("");
-        dateField.setText("");
+        datePicker.setDate(null);
         amountField.setText("");
 
         if (employeeComboBox.getItemCount() > 0) {
