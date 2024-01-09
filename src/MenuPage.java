@@ -1474,7 +1474,6 @@ public class MenuPage extends JFrame {
         panel.add(addPaymentEditArea, BorderLayout.SOUTH);
         return panel;
     }
-
     private void clearPaymentAddEditFields(JTextField receiptNumberField, JTextField paymentDateField, JTextField amountField, JTextField serviceField, JComboBox<Employee> employeeComboBox, JComboBox<Rental> rentalComboBox) {
         receiptNumberField.setText("");
         paymentDateField.setText("");
@@ -1488,7 +1487,6 @@ public class MenuPage extends JFrame {
             rentalComboBox.setSelectedIndex(0);
         }
     }
-
     private void refreshPaymentTable(DefaultTableModel model) {
         List<Payment> payments = DbUtils.getAllPayments();
         model.setRowCount(0);
@@ -1516,30 +1514,271 @@ public class MenuPage extends JFrame {
     private JPanel createInvoicesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         String[] columnNames = {
-                 "Supplier Name", "Service", "Date", "Amount", "Employee"
+                "Supplier Name", "Service", "Date", "Amount", "Employee Name"
+        };
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // This will make none of the cells editable directly by double-clicking
+                return false;
+            }
         };
 
-        List<Invoice> invoices = DbUtils.getAllInvoices();
-        Object[][] data = new Object[invoices.size()][columnNames.length];
-        int i = 0;
-        for (Invoice invoice : invoices) {
+        List<Invoice> invoiceList = DbUtils.getAllInvoices();
+        List<Employee> employeeList = DbUtils.getAllEmployees();
 
-            data[i][0] = invoice.SupplierName;
-            data[i][1] = invoice.Service;
-            data[i][2] = invoice.Date.toString();
-            data[i][3] = invoice.Amount;
-            data[i][4] = DbUtils.getEmployeeNameById(invoice.EmployeeId);
-            i++;
+        for (Invoice invoice : invoiceList) {
+            String employeeName = DbUtils.getEmployeeNameById(invoice.getEmployeeId());
+            model.addRow(new Object[]{
+                    invoice.getSupplierName(),
+                    invoice.getService(),
+                    invoice.getDate(),
+                    invoice.getAmount(),
+                    employeeName,
+            });
         }
 
-        DefaultTableModel model = new DefaultTableModel(data, columnNames);
         JTable table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
+        // Add/Edit Area
+        JPanel addInvoiceEditArea = new JPanel(new GridLayout(0, 2));
+
+        // Add fields for Invoice attributes
+        JTextField supplierNameField = new JTextField();
+        JTextField serviceField = new JTextField();
+        JTextField dateField = new JTextField();
+        JTextField amountField = new JTextField();
+        JComboBox<Employee> employeeComboBox = new JComboBox<>();
+
+        // Adding labels and text fields to the panel
+        addInvoiceEditArea.add(new JLabel("Supplier Name:"));
+        addInvoiceEditArea.add(supplierNameField);
+        addInvoiceEditArea.add(new JLabel("Service:"));
+        addInvoiceEditArea.add(serviceField);
+        addInvoiceEditArea.add(new JLabel("Date:"));
+        addInvoiceEditArea.add(dateField);
+        addInvoiceEditArea.add(new JLabel("Amount:"));
+        addInvoiceEditArea.add(amountField);
+        addInvoiceEditArea.add(new JLabel("Employee:"));
+        addInvoiceEditArea.add(employeeComboBox);
+
+        JButton saveButton = new JButton("Save");
+        saveButton.addActionListener(e -> {
+            try {
+                // Parse integer value from text field
+
+
+                // Parse date value from text field
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                java.util.Date parsedDate = dateFormat.parse(dateField.getText());
+                Date date = new Date(parsedDate.getTime());
+
+                // Parse float value from text field
+                float amount = Float.parseFloat(amountField.getText());
+
+                // Get the selected employee
+                Employee selectedEmployee = (Employee) employeeComboBox.getSelectedItem();
+                int employeeId = selectedEmployee.getId();
+
+                // Create a new Invoice object with the values from the text fields
+                Invoice invoice = new Invoice(
+                        currentInvoiceId,
+                        supplierNameField.getText(),
+                        serviceField.getText(),
+                        date,
+                        amount,
+                        employeeId
+                );
+
+                // Call the addEditInvoice method from DbUtils
+                boolean success = DbUtils.addEditInvoice(invoice);
+                if (success) {
+                    JOptionPane.showMessageDialog(panel, "Invoice saved successfully.");
+                    List<Invoice> newInvoices = DbUtils.getAllInvoices();
+                    invoiceList.clear();
+                    invoiceList.addAll(newInvoices);
+                    refreshInvoiceTable(model);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Failed to save invoice.");
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(panel, "Invalid number format in one of the fields.");
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(panel, "Invalid date format in Date.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        JButton clearButton = new JButton("Clear/Cancel");
+        clearButton.addActionListener(e -> {
+            supplierNameField.setText("");
+            serviceField.setText("");
+            dateField.setText("");
+            amountField.setText("");
+            if (employeeComboBox.getItemCount() > 0) {
+                employeeComboBox.setSelectedIndex(0);
+            }
+        });
+
+        addInvoiceEditArea.add(saveButton);
+        addInvoiceEditArea.add(clearButton);
+
+        panel.add(addInvoiceEditArea, BorderLayout.SOUTH);
+        addInvoiceEditArea.setVisible(false);
+
+        // Add New Entry Button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton addNewInvoiceButton = new JButton("Add Invoice");
+        buttonPanel.add(addNewInvoiceButton);
+        JButton deleteButton = new JButton("Delete");
+        deleteButton.setEnabled(false);
+
+        // Add buttons to the right-aligned panel
+        buttonPanel.add(addNewInvoiceButton);
+        buttonPanel.add(deleteButton);
+        addNewInvoiceButton.addActionListener(e -> {
+            clearInvoiceAddEditFields(supplierNameField, serviceField, dateField, amountField, employeeComboBox);
+            employeeComboBox.removeAllItems();
+            currentInvoiceId = -1;
+
+            List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
+            Collections.sort(sortedEmployeeList, Comparator.comparing(Employee::toString, String.CASE_INSENSITIVE_ORDER));
+            for (Employee employee : sortedEmployeeList) {
+                employeeComboBox.addItem(employee);
+            }
+            addInvoiceEditArea.setVisible(true);
+        });
+        deleteButton.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row != -1 && row < invoiceList.size()) {
+                Invoice invoiceToDelete = invoiceList.get(row);
+                int invoiceId = invoiceToDelete.getId();
+                int choice = JOptionPane.showConfirmDialog(panel, "Are you sure you want to delete this invoice?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+                if (choice == JOptionPane.YES_OPTION) {
+                    boolean success = DbUtils.deleteInvoice(invoiceId);
+                    if (success) {
+                        JOptionPane.showMessageDialog(panel, "Invoice deleted successfully.");
+                        model.removeRow(row);
+                        invoiceList.remove(row);
+                    } else {
+                        JOptionPane.showMessageDialog(panel, "Failed to delete invoice.");
+                    }
+                }
+            }
+        });
+
+        // Add a selection listener to the table to enable the Delete button when a row is selected
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                deleteButton.setEnabled(table.getSelectedRow() != -1);
+            }
+        });
+
+        table.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() > 0) {
+                    int rowIndex = table.rowAtPoint(e.getPoint());
+                    int colIndex = table.columnAtPoint(e.getPoint());
+                    boolean isRowValid = rowIndex >= 0 && rowIndex < table.getRowCount();
+                    boolean isColumnValid = colIndex >= 0 && colIndex < table.getColumnCount();
+                    boolean isCellValid = isRowValid && isColumnValid;
+                    int row = rowIndex;
+
+                    if (isCellValid) {
+                        table.setRowSelectionInterval(row, row);
+                        if (e.getClickCount() == 2) {
+                            Invoice selectedInvoice = invoiceList.get(rowIndex);
+
+
+                            supplierNameField.setText(model.getValueAt(row, 0).toString());
+                            serviceField.setText(model.getValueAt(row, 1).toString());
+                            dateField.setText(model.getValueAt(row, 2).toString());
+                            amountField.setText(model.getValueAt(row, 3).toString());
+
+                            employeeComboBox.removeAllItems();
+                            List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
+                            Collections.sort(sortedEmployeeList, Comparator.comparing(Employee::toString, String.CASE_INSENSITIVE_ORDER));
+                            for (Employee employee : sortedEmployeeList) {
+                                employeeComboBox.addItem(employee);
+                            }
+                            int employeeId = selectedInvoice.getEmployeeId();
+                            for (int i = 0; i < employeeComboBox.getItemCount(); i++) {
+                                Employee employee = employeeComboBox.getItemAt(i);
+                                if (employee.getId() == employeeId) {
+                                    employeeComboBox.setSelectedIndex(i);
+                                    break;
+                                }
+                            }
+                            currentInvoiceId = selectedInvoice.getId();
+                            addInvoiceEditArea.setVisible(true);
+                        }
+                    } else {
+                        table.clearSelection();
+                        addInvoiceEditArea.setVisible(false);
+                        deleteButton.setEnabled(false);
+                    }
+                } else {
+                    table.clearSelection();
+                    addInvoiceEditArea.setVisible(false);
+                    deleteButton.setEnabled(false);
+                }
+            }
+        });
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                boolean rowSelected = (table.getSelectedRow() != -1);
+                deleteButton.setEnabled(rowSelected);
+                if (!rowSelected) {
+                    addInvoiceEditArea.setVisible(false);
+                }
+            }
+        });
+
+        clearButton.addActionListener(e -> {
+            clearInvoiceAddEditFields( supplierNameField, serviceField, dateField, amountField, employeeComboBox);
+            addInvoiceEditArea.setVisible(false);
+            table.clearSelection();
+        });
+
+        panel.add(buttonPanel, BorderLayout.PAGE_START);
         panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(addInvoiceEditArea, BorderLayout.SOUTH);
         return panel;
     }
+
+    private void clearInvoiceAddEditFields(JTextField supplierNameField, JTextField serviceField, JTextField dateField, JTextField amountField, JComboBox<Employee> employeeComboBox) {
+
+        supplierNameField.setText("");
+        serviceField.setText("");
+        dateField.setText("");
+        amountField.setText("");
+
+        if (employeeComboBox.getItemCount() > 0) {
+            employeeComboBox.setSelectedIndex(0);
+        }
+    }
+
+    private void refreshInvoiceTable(DefaultTableModel model) {
+        List<Invoice> invoices = DbUtils.getAllInvoices();
+        model.setRowCount(0);
+
+        for (Invoice invoice : invoices) {
+            String employeeName = DbUtils.getEmployeeNameById(invoice.getEmployeeId());
+            model.addRow(new Object[]{
+                    invoice.getSupplierName(),
+                    invoice.getService(),
+                    invoice.getDate(),
+                    invoice.getAmount(),
+                    employeeName,
+            });
+        }
+    }
+
 
 
 }

@@ -173,7 +173,7 @@ public class DbUtils {
         List<Invoice> invoiceList = new ArrayList<>();
         try {
             Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery("spInvoiceSelectAll");
+            ResultSet resultSet = statement.executeQuery("spInvoiceSelectAllActive");
 
             while (resultSet.next()) {
                 Invoice invoice = new Invoice(
@@ -426,5 +426,33 @@ public class DbUtils {
         }
         return false;
     }
+    public static boolean deleteInvoice(int invoiceId) {
+        try (PreparedStatement statement = conn.prepareStatement("{CALL spDeleteInvoice(?)}")) {
+            statement.setInt(1, invoiceId);
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean addEditInvoice(Invoice invoice) {
+        try (CallableStatement statement = conn.prepareCall("{CALL spAddEditInvoice(?,?,?,?,?,?)}")) {
+            statement.setObject("InvoiceId", invoice.getId()); // Replace "InvoiceId" with the actual parameter name in your stored procedure
+            statement.setObject("SupplierName", invoice.getSupplierName());
+            statement.setObject("Service", invoice.getService());
+            statement.setObject("Date", invoice.getDate());
+            statement.setObject("Amount", invoice.getAmount());
+            statement.setObject("EmployeeId", invoice.getEmployeeId());
+
+            int affectedRows = statement.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 }
