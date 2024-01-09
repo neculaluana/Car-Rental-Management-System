@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
+
 import org.jdesktop.swingx.JXDatePicker;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +27,14 @@ public class MenuPage extends JFrame {
     List<Employee> employeeList=new ArrayList<>();
     List<Rental> rentalList=new ArrayList<>();
     List<Payment> paymentList=new ArrayList<>();
-//    List<Invoice> invoiceList=new ArrayList<>();
+    List<Invoice> invoiceList=new ArrayList<>();
+
+    DefaultTableModel carModel;
+    DefaultTableModel clientModel;
+    DefaultTableModel employeeModel;
+    DefaultTableModel rentalModel;
+    DefaultTableModel paymentModel;
+    DefaultTableModel invoiceModel;
 
     public MenuPage() {
         setTitle("Car Rental");
@@ -55,7 +62,7 @@ public class MenuPage extends JFrame {
         String[] columnNames = {
                 "License Plate", "Brand", "Model", "Chassis Series", "Seats", "Fuel Type", "Year", "Color", "Availability", "Daily Rate"
         };
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+        carModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // This will make none of the cells editable directly by double-clicking
@@ -64,7 +71,7 @@ public class MenuPage extends JFrame {
         };
         carList = DbUtils.getAllCars();
         for (Car car : carList) {
-            model.addRow(new Object[]{
+            carModel.addRow(new Object[]{
                     car.getLicencePlate(),
                     car.getBrand(),
                     car.getModel(),
@@ -79,7 +86,7 @@ public class MenuPage extends JFrame {
         }
 
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(carModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
@@ -150,7 +157,9 @@ public class MenuPage extends JFrame {
                     List<Car> newCars=DbUtils.getAllCars();
                     carList.clear();
                     carList.addAll(newCars);
-                    refreshCarTable(model);
+                    refreshCarTable(carModel);
+                    refreshRentalTable(rentalModel);
+                    refreshPaymentTable(paymentModel);
 
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save car.");
@@ -209,7 +218,7 @@ public class MenuPage extends JFrame {
                     boolean success = DbUtils.deleteCar(carId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Car deleted successfully.");
-                        model.removeRow(row); // Remove the row from the table model
+                        carModel.removeRow(row); // Remove the row from the table model
                         carList.remove(row); // Also remove the car from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete car.");
@@ -240,16 +249,16 @@ public class MenuPage extends JFrame {
                         if(e.getClickCount() ==2){
                             Car selectedCar = carList.get(rowIndex);
                             currentCarId = selectedCar.getId();
-                            licencePlateField.setText(model.getValueAt(row, 0).toString());
-                            brandField.setText(model.getValueAt(row, 1).toString());
-                            modelField.setText(model.getValueAt(row, 2).toString());
-                            chassisSeriesField.setText(model.getValueAt(row, 3).toString());
-                            seatsNumberField.setText(model.getValueAt(row, 4).toString());
-                            fuelTypeField.setText(model.getValueAt(row, 5).toString());
-                            manufactureYearField.setText(model.getValueAt(row, 6).toString());
-                            colorField.setText(model.getValueAt(row, 7).toString());
-                            availabilityCheckBox.setSelected("Available".equals(model.getValueAt(row, 8).toString()));
-                            dailyRateField.setText(model.getValueAt(row, 9).toString());
+                            licencePlateField.setText(carModel.getValueAt(row, 0).toString());
+                            brandField.setText(carModel.getValueAt(row, 1).toString());
+                            modelField.setText(carModel.getValueAt(row, 2).toString());
+                            chassisSeriesField.setText(carModel.getValueAt(row, 3).toString());
+                            seatsNumberField.setText(carModel.getValueAt(row, 4).toString());
+                            fuelTypeField.setText(carModel.getValueAt(row, 5).toString());
+                            manufactureYearField.setText(carModel.getValueAt(row, 6).toString());
+                            colorField.setText(carModel.getValueAt(row, 7).toString());
+                            availabilityCheckBox.setSelected("Available".equals(carModel.getValueAt(row, 8).toString()));
+                            dailyRateField.setText(carModel.getValueAt(row, 9).toString());
                             addCarEditArea.setVisible(true);
                         }
                     }
@@ -326,7 +335,7 @@ public class MenuPage extends JFrame {
                 "Driver License Number", "Issue Date", "Expiration Date", "Car Categories"
         };
 
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+        clientModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // This will make none of the cells editable directly by double-clicking
@@ -337,7 +346,7 @@ public class MenuPage extends JFrame {
         clientList = DbUtils.getAllClients();
 
         for (Client client : clientList) {
-            model.addRow(new Object[]{
+            clientModel.addRow(new Object[]{
                     client.getCNP(),
                     client.getName(),
                     client.getAddress(),
@@ -352,7 +361,7 @@ public class MenuPage extends JFrame {
             });
         }
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(clientModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
@@ -429,7 +438,9 @@ public class MenuPage extends JFrame {
                     List<Client> newClients = DbUtils.getAllClients();
                     clientList.clear();
                     clientList.addAll(newClients);
-                    refreshClientTable(model);
+                    refreshClientTable(clientModel);
+                    refreshRentalTable(rentalModel);
+                    refreshPaymentTable(paymentModel);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save client.");
                 }
@@ -484,7 +495,7 @@ public class MenuPage extends JFrame {
                     boolean success = DbUtils.deleteClient(clientId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Client deleted successfully.");
-                        model.removeRow(row); // Remove the row from the table model
+                        clientModel.removeRow(row); // Remove the row from the table model
                         Client clientToRemove= clientList.get(row);
                         clientList.remove(clientToRemove); // Also remove the client from the list
                     } else {
@@ -516,17 +527,17 @@ public class MenuPage extends JFrame {
                         table.setRowSelectionInterval(row, row);
                         if(e.getClickCount() ==2){
                         Client selectedClient = clientList.get(rowIndex);
-                        cnpField.setText(model.getValueAt(rowIndex, 0).toString());
-                        nameField.setText(model.getValueAt(rowIndex, 1).toString());
-                        addressField.setText(model.getValueAt(rowIndex, 2).toString());
-                        emailField.setText(model.getValueAt(rowIndex, 3).toString());
-                        phoneNumberField.setText(model.getValueAt(rowIndex, 4).toString());
-                        birthdateField.setText(model.getValueAt(rowIndex, 5).toString());
-                        originCountryField.setText(model.getValueAt(rowIndex, 6).toString());
-                        driverLicenseNumberField.setText(model.getValueAt(rowIndex, 7).toString());
-                        issueDateField.setText(model.getValueAt(rowIndex, 8).toString());
-                        expirationDateField.setText(model.getValueAt(rowIndex, 9).toString());
-                        carCategoriesField.setText(model.getValueAt(rowIndex, 10).toString());
+                        cnpField.setText(clientModel.getValueAt(rowIndex, 0).toString());
+                        nameField.setText(clientModel.getValueAt(rowIndex, 1).toString());
+                        addressField.setText(clientModel.getValueAt(rowIndex, 2).toString());
+                        emailField.setText(clientModel.getValueAt(rowIndex, 3).toString());
+                        phoneNumberField.setText(clientModel.getValueAt(rowIndex, 4).toString());
+                        birthdateField.setText(clientModel.getValueAt(rowIndex, 5).toString());
+                        originCountryField.setText(clientModel.getValueAt(rowIndex, 6).toString());
+                        driverLicenseNumberField.setText(clientModel.getValueAt(rowIndex, 7).toString());
+                        issueDateField.setText(clientModel.getValueAt(rowIndex, 8).toString());
+                        expirationDateField.setText(clientModel.getValueAt(rowIndex, 9).toString());
+                        carCategoriesField.setText(clientModel.getValueAt(rowIndex, 10).toString());
                         addClientEditArea.setVisible(true);
                         currentClientId=selectedClient.getId();
                     }
@@ -606,7 +617,7 @@ public class MenuPage extends JFrame {
                 "CNP", "Name", "Address", "Birthdate", "Employment Date", "Position"
         };
 
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+        employeeModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // This will make none of the cells editable directly by double-clicking
@@ -617,7 +628,7 @@ public class MenuPage extends JFrame {
         employeeList = DbUtils.getAllEmployees();
 
         for (Employee employee : employeeList) {
-            model.addRow(new Object[]{
+            employeeModel.addRow(new Object[]{
                     employee.getCNP(),
                     employee.getName(),
                     employee.getAddress(),
@@ -627,7 +638,7 @@ public class MenuPage extends JFrame {
             });
         }
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(employeeModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
@@ -683,7 +694,10 @@ public class MenuPage extends JFrame {
                     List<Employee> newEmployees = DbUtils.getAllEmployees();
                     employeeList.clear();
                     employeeList.addAll(newEmployees);
-                    refreshEmployeeTable(model);
+                    refreshEmployeeTable(employeeModel);
+                    refreshRentalTable(rentalModel);
+                    refreshPaymentTable(paymentModel);
+                    refreshInvoiceTable(invoiceModel);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save employee.");
                 }
@@ -736,7 +750,7 @@ public class MenuPage extends JFrame {
                     boolean success = DbUtils.deleteEmployee(employeeId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Employee deleted successfully.");
-                        model.removeRow(row); // Remove the row from the table model
+                        employeeModel.removeRow(row); // Remove the row from the table model
                         employeeList.remove(row); // Also remove the employee from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete employee.");
@@ -767,12 +781,12 @@ public class MenuPage extends JFrame {
                         table.setRowSelectionInterval(row, row);
                         if (e.getClickCount() == 2) {
                             Employee selectedEmployee = employeeList.get(rowIndex);
-                            cnpField.setText(model.getValueAt(rowIndex, 0).toString());
-                            nameField.setText(model.getValueAt(rowIndex, 1).toString());
-                            addressField.setText(model.getValueAt(rowIndex, 2).toString());
-                            birthdateField.setText(model.getValueAt(rowIndex, 3).toString());
-                            employmentDateField.setText(model.getValueAt(rowIndex, 4).toString());
-                            positionField.setText(model.getValueAt(rowIndex, 5).toString());
+                            cnpField.setText(employeeModel.getValueAt(rowIndex, 0).toString());
+                            nameField.setText(employeeModel.getValueAt(rowIndex, 1).toString());
+                            addressField.setText(employeeModel.getValueAt(rowIndex, 2).toString());
+                            birthdateField.setText(employeeModel.getValueAt(rowIndex, 3).toString());
+                            employmentDateField.setText(employeeModel.getValueAt(rowIndex, 4).toString());
+                            positionField.setText(employeeModel.getValueAt(rowIndex, 5).toString());
                             addEmployeeEditArea.setVisible(true);
                             currentEmployeeId = selectedEmployee.getId();
                         }
@@ -847,7 +861,7 @@ public class MenuPage extends JFrame {
         String[] columnNames = {
                 "Start Date", "End Date", "Car Plate", "Client Name", "Employee Name"
         };
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+        rentalModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // This will make none of the cells editable directly by double-clicking
@@ -860,7 +874,7 @@ public class MenuPage extends JFrame {
             String clientName = DbUtils.getClientNameById(rental.getClientId());
             String employeeName = DbUtils.getEmployeeNameById(rental.getEmployeeId());
 
-            model.addRow(new Object[]{
+            rentalModel.addRow(new Object[]{
                     rental.getStartDate(),
                     rental.getEndDate(),
                     carPlate,
@@ -870,7 +884,7 @@ public class MenuPage extends JFrame {
         }
 
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(rentalModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
@@ -934,7 +948,8 @@ public class MenuPage extends JFrame {
                     List<Rental> newRentals = DbUtils.getAllRentals();
                     rentalList.clear();
                     rentalList.addAll(newRentals);
-                    refreshRentalTable(model);
+                    refreshRentalTable(rentalModel);
+                    refreshPaymentTable(paymentModel);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save rental.");
                 }
@@ -1032,7 +1047,7 @@ public class MenuPage extends JFrame {
                     boolean success = DbUtils.deleteRental(rentalId);
                     if (success) {
                         JOptionPane.showMessageDialog(this, "Rental deleted successfully.");
-                        model.removeRow(row); // Remove the row from the table model
+                        rentalModel.removeRow(row); // Remove the row from the table model
                         rentalList.remove(row);// Also remove the rental from the list
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to delete rental.");
@@ -1063,8 +1078,8 @@ public class MenuPage extends JFrame {
                         if (e.getClickCount() == 2) {
                             Rental selectedRental = rentalList.get(rowIndex);
 
-                            startDateField.setText(model.getValueAt(row, 0).toString());
-                            endDateField.setText(model.getValueAt(row, 1).toString());
+                            startDateField.setText(rentalModel.getValueAt(row, 0).toString());
+                            endDateField.setText(rentalModel.getValueAt(row, 1).toString());
                             carComboBox.removeAllItems();
                             clientComboBox.removeAllItems();
                             employeeComboBox.removeAllItems();
@@ -1204,7 +1219,7 @@ public class MenuPage extends JFrame {
         String[] columnNames = {
                 "Receipt Number", "Payment Date", "Amount", "Service", "Employee Name", "Rental"
         };
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+        paymentModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // This will make none of the cells editable directly by double-clicking
@@ -1222,7 +1237,7 @@ public class MenuPage extends JFrame {
                     rentalInfo = rental.toString();
                     break; // Stop searching once you've found the matching Rental
                 }}
-            model.addRow(new Object[]{
+            paymentModel.addRow(new Object[]{
                     payment.getReceiptNumber(),
                     payment.getPaymentDate(),
                     payment.getAmount(),
@@ -1232,7 +1247,7 @@ public class MenuPage extends JFrame {
             });
         }
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(paymentModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
@@ -1298,7 +1313,7 @@ public class MenuPage extends JFrame {
                     List<Payment> newPayments = DbUtils.getAllPayments();
                     paymentList.clear();
                     paymentList.addAll(newPayments);
-                    refreshPaymentTable(model);
+                    refreshPaymentTable(paymentModel);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save payment.");
                 }
@@ -1372,7 +1387,7 @@ public class MenuPage extends JFrame {
                     boolean success = DbUtils.deletePayment(paymentId);
                     if (success) {
                         JOptionPane.showMessageDialog(panel, "Payment deleted successfully.");
-                        model.removeRow(row);
+                        paymentModel.removeRow(row);
                         paymentList.remove(row);
                     } else {
                         JOptionPane.showMessageDialog(panel, "Failed to delete payment.");
@@ -1403,10 +1418,10 @@ public class MenuPage extends JFrame {
                         if (e.getClickCount() == 2) {
                             Payment selectedPayment = paymentList.get(rowIndex);
 
-                            receiptNumberField.setText(model.getValueAt(row, 0).toString());
-                            paymentDateField.setText(model.getValueAt(row, 1).toString());
-                            amountField.setText(model.getValueAt(row, 2).toString());
-                            serviceField.setText(model.getValueAt(row, 3).toString());
+                            receiptNumberField.setText(paymentModel.getValueAt(row, 0).toString());
+                            paymentDateField.setText(paymentModel.getValueAt(row, 1).toString());
+                            amountField.setText(paymentModel.getValueAt(row, 2).toString());
+                            serviceField.setText(paymentModel.getValueAt(row, 3).toString());
 
 
                             employeeComboBox.removeAllItems();
@@ -1516,7 +1531,7 @@ public class MenuPage extends JFrame {
         String[] columnNames = {
                 "Supplier Name", "Service", "Date", "Amount", "Employee Name"
         };
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+        invoiceModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // This will make none of the cells editable directly by double-clicking
@@ -1524,12 +1539,12 @@ public class MenuPage extends JFrame {
             }
         };
 
-        List<Invoice> invoiceList = DbUtils.getAllInvoices();
-        List<Employee> employeeList = DbUtils.getAllEmployees();
+        invoiceList = DbUtils.getAllInvoices();
+        employeeList = DbUtils.getAllEmployees();
 
         for (Invoice invoice : invoiceList) {
             String employeeName = DbUtils.getEmployeeNameById(invoice.getEmployeeId());
-            model.addRow(new Object[]{
+            invoiceModel.addRow(new Object[]{
                     invoice.getSupplierName(),
                     invoice.getService(),
                     invoice.getDate(),
@@ -1538,7 +1553,7 @@ public class MenuPage extends JFrame {
             });
         }
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(invoiceModel);
         JScrollPane scrollPane = new JScrollPane(table);
         table.setFillsViewportHeight(true);
 
@@ -1601,7 +1616,7 @@ public class MenuPage extends JFrame {
                     List<Invoice> newInvoices = DbUtils.getAllInvoices();
                     invoiceList.clear();
                     invoiceList.addAll(newInvoices);
-                    refreshInvoiceTable(model);
+                    refreshInvoiceTable(invoiceModel);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Failed to save invoice.");
                 }
@@ -1662,7 +1677,7 @@ public class MenuPage extends JFrame {
                     boolean success = DbUtils.deleteInvoice(invoiceId);
                     if (success) {
                         JOptionPane.showMessageDialog(panel, "Invoice deleted successfully.");
-                        model.removeRow(row);
+                        invoiceModel.removeRow(row);
                         invoiceList.remove(row);
                     } else {
                         JOptionPane.showMessageDialog(panel, "Failed to delete invoice.");
@@ -1694,15 +1709,15 @@ public class MenuPage extends JFrame {
                             Invoice selectedInvoice = invoiceList.get(rowIndex);
 
 
-                            supplierNameField.setText(model.getValueAt(row, 0).toString());
-                            serviceField.setText(model.getValueAt(row, 1).toString());
-                            String dateStr = model.getValueAt(row, 2).toString();
+                            supplierNameField.setText(invoiceModel.getValueAt(row, 0).toString());
+                            serviceField.setText(invoiceModel.getValueAt(row, 1).toString());
+                            String dateStr = invoiceModel.getValueAt(row, 2).toString();
                             java.sql.Date sqlDate = java.sql.Date.valueOf(dateStr);
 
                             // Set the date in the JXDatePicker
                             datePicker.setDate(sqlDate);
 
-                            amountField.setText(model.getValueAt(row, 3).toString());
+                            amountField.setText(invoiceModel.getValueAt(row, 3).toString());
 
                             employeeComboBox.removeAllItems();
                             List<Employee> sortedEmployeeList = new ArrayList<>(employeeList);
@@ -1755,7 +1770,6 @@ public class MenuPage extends JFrame {
         panel.add(addInvoiceEditArea, BorderLayout.SOUTH);
         return panel;
     }
-
     private void clearInvoiceAddEditFields(JTextField supplierNameField, JTextField serviceField, JXDatePicker datePicker, JTextField amountField, JComboBox<Employee> employeeComboBox) {
 
         supplierNameField.setText("");
@@ -1767,7 +1781,6 @@ public class MenuPage extends JFrame {
             employeeComboBox.setSelectedIndex(0);
         }
     }
-
     private void refreshInvoiceTable(DefaultTableModel model) {
         List<Invoice> invoices = DbUtils.getAllInvoices();
         model.setRowCount(0);
